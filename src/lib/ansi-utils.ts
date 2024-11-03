@@ -24,10 +24,10 @@ export const basicColors = {
 export const indexToRGB = (index: number): string => {
   if (index < 16) {
     const basic = [
-      '#000000', '#800000', '#008000', '#808000', // Using true black for light mode
-      '#000080', '#800080', '#008080', '#c0c0c0',
+      '#000000', '#ff3333', '#33ff33', '#ffff33', // Brighter red, green, yellow
+      '#3333ff', '#ff33ff', '#33ffff', '#c0c0c0', // Brighter blue, magenta, cyan
       '#808080', '#ff0000', '#00ff00', '#ffff00',
-      '#0000ff', '#ff00ff', '#00ffff', '#ffffff'  // Using true white
+      '#0000ff', '#ff00ff', '#00ffff', '#ffffff'
     ];
     return basic[index];
   }

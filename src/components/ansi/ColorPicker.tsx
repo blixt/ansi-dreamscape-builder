@@ -81,7 +81,7 @@ export function ColorPicker({
                       borderColor: indexToRGB(colorIndex)
                     }}
                   >
-                    <span className={isBlack ? 'text-muted-foreground dark:text-muted-foreground/50' : ''}>
+                    <span className={isBlack ? 'text-foreground dark:text-muted-foreground/50' : ''}>
                       {name}
                     </span>
                   </Button>
