@@ -1,21 +1,21 @@
-import * as MenubarPrimitive from "@radix-ui/react-menubar"
+import * as MenubarPrimitive from "@radix-ui/react-menubar";
 import {
   MenubarItem,
   MenubarCheckboxItem,
   MenubarRadioItem,
-} from "./menubar/menubar-item"
+} from "./menubar/menubar-item";
 import {
   MenubarContent,
   MenubarSubContent,
   MenubarSubTrigger,
-} from "./menubar/menubar-content"
+} from "./menubar/menubar-content";
 import {
   Menubar,
   MenubarTrigger,
   MenubarLabel,
   MenubarSeparator,
   MenubarShortcut,
-} from "./menubar/menubar-root"
+} from "./menubar/menubar-root";
 
 export {
   Menubar,
@@ -34,4 +34,4 @@ export {
   MenubarPrimitive.Group as MenubarGroup,
   MenubarPrimitive.Sub as MenubarSub,
   MenubarShortcut,
-}
+};
