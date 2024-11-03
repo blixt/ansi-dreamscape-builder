@@ -69,7 +69,7 @@ export function ColorPicker({
             <div className="grid grid-cols-4 gap-2">
               {Object.entries(basicColors).map(([code, name]) => {
                 const colorIndex = parseInt(code) - 30;
-                const textColor = colorIndex < 3 ? 'text-white' : 'text-black dark:text-white';
+                const isBlack = colorIndex === 0;
                 return (
                   <Button
                     key={code}
@@ -77,11 +77,11 @@ export function ColorPicker({
                     className={`h-auto py-2 ${fgColor === parseInt(code) ? 'ring-2 ring-primary' : ''}`}
                     onClick={() => setFgColor(parseInt(code))}
                     style={{
-                      color: indexToRGB(colorIndex),
+                      color: isBlack ? undefined : indexToRGB(colorIndex),
                       borderColor: indexToRGB(colorIndex)
                     }}
                   >
-                    <span className={colorIndex === 0 ? textColor : ''}>
+                    <span className={isBlack ? 'text-muted-foreground dark:text-muted-foreground/50' : ''}>
                       {name}
                     </span>
                   </Button>
