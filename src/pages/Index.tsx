@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { parseAnsiCode, indexToRGB } from '@/lib/ansi-utils';
+import { parseAnsiCode } from '@/lib/ansi-utils';
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
@@ -48,38 +48,6 @@ const Index = () => {
     }
     
     return parts.length ? `\\x1b[${parts.join(';')}m` : '';
-  };
-
-  const getPreviewStyle = () => {
-    const styles: Record<string, any> = {};
-    
-    if (use256Color) {
-      if (fg256 !== null) styles.color = indexToRGB(fg256);
-      if (bg256 !== null) styles.backgroundColor = indexToRGB(bg256);
-    } else {
-      const basicColorMap = {
-        30: '#000000', 31: '#ff0000', 32: '#00ff00',
-        33: '#ffff00', 34: '#0000ff', 35: '#ff00ff',
-        36: '#00ffff', 37: '#ffffff'
-      };
-      
-      if (fgColor !== null) styles.color = basicColorMap[fgColor as keyof typeof basicColorMap];
-      if (bgColor !== null) styles.backgroundColor = basicColorMap[(bgColor + 30) as keyof typeof basicColorMap];
-    }
-    
-    if (style === 1) styles.fontWeight = 'bold';
-    if (style === 2) styles.opacity = 0.5;
-    if (style === 3) styles.fontStyle = 'italic';
-    if (style === 4) styles.textDecoration = 'underline';
-    if (style === 5) styles.animation = 'blink 1s step-end infinite';
-    if (style === 7) {
-      const temp = styles.color;
-      styles.color = styles.backgroundColor;
-      styles.backgroundColor = temp;
-    }
-    if (style === 9) styles.textDecoration = 'line-through';
-    
-    return styles;
   };
 
   const handleAnsiInput = (value: string) => {
@@ -155,7 +123,7 @@ const Index = () => {
                   className="w-full p-4 rounded bg-code-background text-code-foreground font-mono text-sm"
                 />
               </div>
-              <Preview previewStyle={getPreviewStyle()} />
+              <Preview ansiCode={getAnsiCode()} />
             </div>
           </div>
         </div>
