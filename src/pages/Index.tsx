@@ -9,10 +9,11 @@ import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
 import { Preview } from '@/components/ansi/Preview';
+import { useTheme } from "next-themes";
 
 const Index = () => {
   const { toast } = useToast();
-  const [theme, setTheme] = useState('dark');
+  const { theme, setTheme } = useTheme(); // Updated for theme context
   const [style, setStyle] = useState(0);
   const [fgColor, setFgColor] = useState<number | null>(null);
   const [bgColor, setBgColor] = useState<number | null>(null);
@@ -110,7 +111,7 @@ const Index = () => {
         <div className="p-6 space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">ANSI Code Visualizer</h1>
-            <ThemeToggle theme={theme} setTheme={setTheme} />
+            <ThemeToggle />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">

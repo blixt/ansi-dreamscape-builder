@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 
-interface ThemeToggleProps {
-  theme: string;
-  setTheme: (theme: string) => void;
-}
+export function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
 
-export function ThemeToggle({ theme, setTheme }: ThemeToggleProps) {
   return (
     <Button
       variant="ghost"
