@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { parseAnsiCode, indexToRGB } from '@/lib/ansi-utils'; // Importing indexToRGB
+import { parseAnsiCode, indexToRGB } from '@/lib/ansi-utils';
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
@@ -13,7 +13,7 @@ import { useTheme } from "next-themes";
 
 const Index = () => {
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme(); // Updated for theme context
+  const { theme, setTheme } = useTheme();
   const [style, setStyle] = useState(0);
   const [fgColor, setFgColor] = useState<number | null>(null);
   const [bgColor, setBgColor] = useState<number | null>(null);
@@ -36,8 +36,8 @@ const Index = () => {
     }
     
     if (use256Color) {
-      if (fg256 !== null) parts.push(`38;5;${fg256}`);
-      if (bg256 !== null) parts.push(`48;5;${bg256}`);
+      if (fgColor !== null) parts.push(`38;5;${fg256}`);
+      if (bgColor !== null) parts.push(`48;5;${bg256}`);
     } else {
       if (fgColor !== null) parts.push(fgColor);
       if (bgColor !== null) parts.push(bgColor + 10);
