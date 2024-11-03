@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { parseAnsiCode } from '@/lib/ansi-utils';
+import { parseAnsiCode, indexToRGB } from '@/lib/ansi-utils'; // Importing indexToRGB
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
