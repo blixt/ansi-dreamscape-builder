@@ -6,9 +6,7 @@ interface PreviewProps {
 
 export function Preview({ ansiCode }: PreviewProps) {
   const getPreviewStyle = () => {
-    // Remove escape sequence prefix if present
-    const cleanCode = ansiCode.replace(/^\\x1b\[/, '').replace(/m$/, '');
-    const parsed = parseAnsiCode(cleanCode);
+    const parsed = parseAnsiCode(ansiCode);
     const styles: Record<string, any> = {};
     
     if (parsed.use256Color) {
@@ -23,8 +21,7 @@ export function Preview({ ansiCode }: PreviewProps) {
       
       if (parsed.fgColor !== null) styles.color = basicColorMap[parsed.fgColor as keyof typeof basicColorMap];
       if (parsed.bgColor !== null) {
-        const bgColorCode = parsed.bgColor + 40;
-        styles.backgroundColor = basicColorMap[(bgColorCode - 10) as keyof typeof basicColorMap];
+        styles.backgroundColor = basicColorMap[(parsed.bgColor + 30) as keyof typeof basicColorMap];
       }
     }
     
