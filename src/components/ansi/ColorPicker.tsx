@@ -55,21 +55,35 @@ export function ColorPicker({
                 <span>Enable</span>
                 <Switch 
                   checked={fgColor !== null} 
-                  onCheckedChange={(checked) => setFgColor(checked ? fg256 : null)} 
+                  onCheckedChange={(checked) => {
+                    setFgColor(checked ? fg256 : null);
+                  }} 
                 />
               </div>
             </div>
-            <Slider
-              value={[fg256]}
-              onValueChange={(value) => setFg256(value[0])}
-              max={255}
-              step={1}
-              disabled={fgColor === null}
-            />
-            <div className="flex overflow-x-auto py-2 gap-[1px]">
-              {Array.from({ length: 256 }, (_, i) => (
-                <ColorPreview key={i} value={i} onClick={setFg256} />
-              ))}
+            <div className={fgColor === null ? "opacity-50" : ""}>
+              <Slider
+                value={[fg256]}
+                onValueChange={(value) => {
+                  setFg256(value[0]);
+                  if (fgColor !== null) {
+                    setFgColor(value[0]);
+                  }
+                }}
+                max={255}
+                step={1}
+                disabled={fgColor === null}
+              />
+              <div className="flex overflow-x-auto py-2 gap-[1px]">
+                {Array.from({ length: 256 }, (_, i) => (
+                  <ColorPreview key={i} value={i} onClick={(value) => {
+                    setFg256(value);
+                    if (fgColor !== null) {
+                      setFgColor(value);
+                    }
+                  }} />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -80,21 +94,35 @@ export function ColorPicker({
                 <span>Enable</span>
                 <Switch 
                   checked={bgColor !== null} 
-                  onCheckedChange={(checked) => setBgColor(checked ? bg256 : null)} 
+                  onCheckedChange={(checked) => {
+                    setBgColor(checked ? bg256 : null);
+                  }} 
                 />
               </div>
             </div>
-            <Slider
-              value={[bg256]}
-              onValueChange={(value) => setBg256(value[0])}
-              max={255}
-              step={1}
-              disabled={bgColor === null}
-            />
-            <div className="flex overflow-x-auto py-2 gap-[1px]">
-              {Array.from({ length: 256 }, (_, i) => (
-                <ColorPreview key={i} value={i} onClick={setBg256} />
-              ))}
+            <div className={bgColor === null ? "opacity-50" : ""}>
+              <Slider
+                value={[bg256]}
+                onValueChange={(value) => {
+                  setBg256(value[0]);
+                  if (bgColor !== null) {
+                    setBgColor(value[0]);
+                  }
+                }}
+                max={255}
+                step={1}
+                disabled={bgColor === null}
+              />
+              <div className="flex overflow-x-auto py-2 gap-[1px]">
+                {Array.from({ length: 256 }, (_, i) => (
+                  <ColorPreview key={i} value={i} onClick={(value) => {
+                    setBg256(value);
+                    if (bgColor !== null) {
+                      setBgColor(value);
+                    }
+                  }} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
