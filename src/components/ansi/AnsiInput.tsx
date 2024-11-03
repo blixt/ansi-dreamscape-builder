@@ -12,7 +12,9 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
   const { toast } = useToast();
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(value);
+    // Convert escape character to \e before copying
+    const displayValue = value.replace(/\x1b/g, '\\e');
+    navigator.clipboard.writeText(displayValue);
     toast({
       title: "Copied to clipboard",
       description: "The ANSI code has been copied to your clipboard.",
