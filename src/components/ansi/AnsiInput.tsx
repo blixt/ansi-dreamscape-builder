@@ -27,11 +27,10 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
           <Copy className="h-4 w-4" />
         </Button>
       </div>
-      <input
-        type="text"
+      <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 rounded bg-code-background text-code-foreground font-mono text-sm"
+        className="font-mono text-sm bg-code-background text-code-foreground p-4"
       />
     </div>
   );
