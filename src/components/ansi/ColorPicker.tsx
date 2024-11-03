@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { basicColors, indexToRGB } from "@/lib/ansi-utils";
 
 interface ColorPickerProps {
@@ -38,25 +38,33 @@ export function ColorPicker({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <Checkbox 
-          id="use256Color"
-          checked={use256Color}
-          onCheckedChange={setUse256Color}
-        />
-        <label htmlFor="use256Color">Use 256 Colors</label>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Color Mode</h3>
+        <div className="flex items-center gap-2">
+          <span>256 Colors</span>
+          <Switch checked={use256Color} onCheckedChange={setUse256Color} />
+        </div>
       </div>
 
       {use256Color ? (
         <div className="space-y-6">
           <div className="space-y-2">
-            <label>Foreground Color (0-255)</label>
+            <div className="flex items-center justify-between">
+              <label>Foreground Color (0-255)</label>
+              <div className="flex items-center gap-2">
+                <span>Enable</span>
+                <Switch 
+                  checked={fgColor !== null} 
+                  onCheckedChange={(checked) => setFgColor(checked ? fg256 : null)} 
+                />
+              </div>
+            </div>
             <Slider
               value={[fg256]}
               onValueChange={(value) => setFg256(value[0])}
               max={255}
               step={1}
-              disabled={!use256Color}
+              disabled={fgColor === null}
             />
             <div className="flex overflow-x-auto py-2 gap-[1px]">
               {Array.from({ length: 256 }, (_, i) => (
@@ -66,13 +74,22 @@ export function ColorPicker({
           </div>
 
           <div className="space-y-2">
-            <label>Background Color (0-255)</label>
+            <div className="flex items-center justify-between">
+              <label>Background Color (0-255)</label>
+              <div className="flex items-center gap-2">
+                <span>Enable</span>
+                <Switch 
+                  checked={bgColor !== null} 
+                  onCheckedChange={(checked) => setBgColor(checked ? bg256 : null)} 
+                />
+              </div>
+            </div>
             <Slider
               value={[bg256]}
               onValueChange={(value) => setBg256(value[0])}
               max={255}
               step={1}
-              disabled={!use256Color}
+              disabled={bgColor === null}
             />
             <div className="flex overflow-x-auto py-2 gap-[1px]">
               {Array.from({ length: 256 }, (_, i) => (
