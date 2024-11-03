@@ -67,42 +67,52 @@ export function ColorPicker({
           <div className="space-y-2">
             <label>Foreground Color</label>
             <div className="grid grid-cols-4 gap-2">
-              {Object.entries(basicColors).map(([code, name]) => (
-                <Button
-                  key={code}
-                  variant="outline"
-                  className={`h-auto py-2 ${fgColor === parseInt(code) ? 'ring-2 ring-primary' : ''}`}
-                  onClick={() => setFgColor(parseInt(code))}
-                  style={{
-                    color: indexToRGB(parseInt(code) - 30),
-                    borderColor: indexToRGB(parseInt(code) - 30)
-                  }}
-                >
-                  {name}
-                </Button>
-              ))}
+              {Object.entries(basicColors).map(([code, name]) => {
+                const colorIndex = parseInt(code) - 30;
+                const textColor = colorIndex < 3 ? 'text-white' : 'text-black dark:text-white';
+                return (
+                  <Button
+                    key={code}
+                    variant="outline"
+                    className={`h-auto py-2 ${fgColor === parseInt(code) ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setFgColor(parseInt(code))}
+                    style={{
+                      color: indexToRGB(colorIndex),
+                      borderColor: indexToRGB(colorIndex)
+                    }}
+                  >
+                    <span className={colorIndex === 0 ? textColor : ''}>
+                      {name}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
 
           <div className="space-y-2">
             <label>Background Color</label>
             <div className="grid grid-cols-4 gap-2">
-              {Object.entries(basicColors).map(([code, name]) => (
-                <Button
-                  key={code}
-                  variant="outline"
-                  className={`h-auto py-2 ${bgColor === parseInt(code) - 30 ? 'ring-2 ring-primary' : ''}`}
-                  onClick={() => setBgColor(parseInt(code) - 30)}
-                  style={{
-                    backgroundColor: indexToRGB(parseInt(code) - 30),
-                    borderColor: indexToRGB(parseInt(code) - 30)
-                  }}
-                >
-                  <span className={parseInt(code) - 30 < 3 ? 'text-white' : ''}>
-                    {name}
-                  </span>
-                </Button>
-              ))}
+              {Object.entries(basicColors).map(([code, name]) => {
+                const colorIndex = parseInt(code) - 30;
+                const textColor = colorIndex < 3 ? 'text-white' : 'text-black dark:text-white';
+                return (
+                  <Button
+                    key={code}
+                    variant="outline"
+                    className={`h-auto py-2 ${bgColor === colorIndex ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setBgColor(colorIndex)}
+                    style={{
+                      backgroundColor: indexToRGB(colorIndex),
+                      borderColor: indexToRGB(colorIndex)
+                    }}
+                  >
+                    <span className={textColor}>
+                      {name}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </div>
