@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { basicColors, indexToRGB } from "@/lib/ansi-utils";
+import { basicColors, indexToRGB } from "@/lib/ansi-colors";
 
 interface BasicColorPickerProps {
   label: string;

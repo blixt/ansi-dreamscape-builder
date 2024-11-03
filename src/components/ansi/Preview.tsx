@@ -1,4 +1,5 @@
-import { parseAnsiCode, indexToRGB } from '@/lib/ansi-utils';
+import { parseAnsiCode } from '@/lib/ansi-parser';
+import { indexToRGB } from '@/lib/ansi-colors';
 
 interface PreviewProps {
   ansiCode: string;

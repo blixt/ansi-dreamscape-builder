@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { styles } from "@/lib/ansi-utils";
+import { styles } from "@/lib/ansi-colors";
 
 interface StyleSelectorProps {
   style: number;

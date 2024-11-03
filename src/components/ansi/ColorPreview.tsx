@@ -1,3 +1,5 @@
+import { indexToRGB } from "@/lib/ansi-colors";
+
 interface ColorPreviewProps {
   value: number;
   onClick: (value: number) => void;

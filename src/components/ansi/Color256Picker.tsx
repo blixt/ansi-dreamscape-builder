@@ -1,7 +1,7 @@
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { ColorPreview } from "./ColorPreview";
-import { indexToRGB } from "@/lib/ansi-utils";
+import { indexToRGB } from "@/lib/ansi-colors";
 
 interface Color256PickerProps {
   label: string;
