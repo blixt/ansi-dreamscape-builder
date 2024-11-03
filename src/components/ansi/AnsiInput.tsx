@@ -30,7 +30,7 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="font-mono text-sm bg-code-background text-code-foreground p-4"
+        className="font-mono text-sm bg-code-background text-code-foreground min-h-[80px] px-4 py-3"
       />
     </div>
   );

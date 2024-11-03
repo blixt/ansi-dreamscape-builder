@@ -43,12 +43,14 @@ const Index = () => {
       parts.push(customCode);
     }
     
-    return parts.length ? `\\x1b[${parts.join(';')}m` : '';
+    return parts.length ? `\x1b[${parts.join(';')}m` : '';
   };
 
   const handleAnsiInput = (value: string) => {
     try {
-      const parsed = parseAnsiCode(value);
+      // Remove escape sequence prefix and 'm' suffix before parsing
+      const cleanCode = value.replace(/^\x1b\[/, '').replace(/m$/, '');
+      const parsed = parseAnsiCode(cleanCode);
       setStyle(parsed.style);
       setFgColor(parsed.fgColor);
       setBgColor(parsed.bgColor);
