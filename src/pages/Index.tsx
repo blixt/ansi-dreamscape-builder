@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Copy, Sun, Moon } from 'lucide-react';
+import { Copy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { styles, basicColors, indexToRGB, parseAnsiCode } from '@/lib/ansi-utils';
+import { parseAnsiCode } from '@/lib/ansi-utils';
+import { ThemeToggle } from '@/components/ansi/ThemeToggle';
+import { StyleSelector } from '@/components/ansi/StyleSelector';
+import { ColorPicker } from '@/components/ansi/ColorPicker';
+import { Preview } from '@/components/ansi/Preview';
 
 const Index = () => {
   const { toast } = useToast();
@@ -18,7 +20,6 @@ const Index = () => {
   const [bg256, setBg256] = useState(1);
   const [use256Color, setUse256Color] = useState(false);
   const [customCode, setCustomCode] = useState('');
-  const [ansiInput, setAnsiInput] = useState('');
 
   useEffect(() => {
     const isDark = theme === 'dark' || 
@@ -81,7 +82,6 @@ const Index = () => {
   };
 
   const handleAnsiInput = (value: string) => {
-    setAnsiInput(value);
     try {
       const parsed = parseAnsiCode(value);
       setStyle(parsed.style);
@@ -110,125 +110,24 @@ const Index = () => {
         <div className="p-6 space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">ANSI Code Visualizer</h1>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            >
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <Input
-              value={ansiInput}
-              onChange={(e) => handleAnsiInput(e.target.value)}
-              placeholder="Enter ANSI code (e.g., \x1b[1;31m)"
-              className="font-mono"
-            />
+            <ThemeToggle theme={theme} setTheme={setTheme} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Text Style</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.entries(styles).map(([value, { name }]) => (
-                    <Button
-                      key={value}
-                      variant={style === parseInt(value) ? "default" : "outline"}
-                      onClick={() => setStyle(parseInt(value))}
-                      className="h-auto py-2"
-                    >
-                      {name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Color Mode</h3>
-                  <div className="flex items-center gap-2">
-                    <span>256 Colors</span>
-                    <Switch
-                      checked={use256Color}
-                      onCheckedChange={setUse256Color}
-                    />
-                  </div>
-                </div>
-
-                {use256Color ? (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label>Foreground Color (0-255)</label>
-                      <Slider
-                        value={[fg256]}
-                        onValueChange={(value) => setFg256(value[0])}
-                        max={255}
-                        step={1}
-                      />
-                      <div className="h-4 rounded" style={{ backgroundColor: indexToRGB(fg256) }} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label>Background Color (0-255)</label>
-                      <Slider
-                        value={[bg256]}
-                        onValueChange={(value) => setBg256(value[0])}
-                        max={255}
-                        step={1}
-                      />
-                      <div className="h-4 rounded" style={{ backgroundColor: indexToRGB(bg256) }} />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label>Foreground Color</label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {Object.entries(basicColors).map(([code, name]) => (
-                          <Button
-                            key={code}
-                            variant="outline"
-                            className={`h-auto py-2 ${fgColor === parseInt(code) ? 'ring-2 ring-primary' : ''}`}
-                            onClick={() => setFgColor(parseInt(code))}
-                            style={{
-                              color: indexToRGB(parseInt(code) - 30),
-                              borderColor: indexToRGB(parseInt(code) - 30)
-                            }}
-                          >
-                            {name}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label>Background Color</label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {Object.entries(basicColors).map(([code, name]) => (
-                          <Button
-                            key={code}
-                            variant="outline"
-                            className={`h-auto py-2 ${bgColor === parseInt(code) - 30 ? 'ring-2 ring-primary' : ''}`}
-                            onClick={() => setBgColor(parseInt(code) - 30)}
-                            style={{
-                              backgroundColor: indexToRGB(parseInt(code) - 30),
-                              borderColor: indexToRGB(parseInt(code) - 30)
-                            }}
-                          >
-                            <span className={parseInt(code) - 30 < 3 ? 'text-white' : ''}>
-                              {name}
-                            </span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
+              <StyleSelector style={style} setStyle={setStyle} />
+              <ColorPicker
+                use256Color={use256Color}
+                setUse256Color={setUse256Color}
+                fg256={fg256}
+                setFg256={setFg256}
+                bg256={bg256}
+                setBg256={setBg256}
+                fgColor={fgColor}
+                setFgColor={setFgColor}
+                bgColor={bgColor}
+                setBgColor={setBgColor}
+              />
               <div className="space-y-2">
                 <label>Custom Parameters</label>
                 <Input
@@ -248,32 +147,14 @@ const Index = () => {
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <pre className="p-4 rounded bg-code-background text-code-foreground font-mono text-sm overflow-x-auto">
-                  {getAnsiCode()}
-                </pre>
+                <input
+                  type="text"
+                  value={getAnsiCode()}
+                  onChange={(e) => handleAnsiInput(e.target.value)}
+                  className="w-full p-4 rounded bg-code-background text-code-foreground font-mono text-sm"
+                />
               </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Preview</h3>
-                <div className="ansi-preview" style={getPreviewStyle()}>
-                  The quick brown fox jumps over the lazy dog
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Common ANSI Codes</h3>
-                <div className="space-y-2 font-mono text-sm">
-                  <div>Reset: \x1b[0m</div>
-                  <div>Move Up: \x1b[{'{n}'}A</div>
-                  <div>Move Down: \x1b[{'{n}'}B</div>
-                  <div>Move Right: \x1b[{'{n}'}C</div>
-                  <div>Move Left: \x1b[{'{n}'}D</div>
-                  <div>Clear Screen: \x1b[2J</div>
-                  <div>Clear Line: \x1b[K</div>
-                  <div>Save Position: \x1b[s</div>
-                  <div>Restore Position: \x1b[u</div>
-                </div>
-              </div>
+              <Preview previewStyle={getPreviewStyle()} />
             </div>
           </div>
         </div>
