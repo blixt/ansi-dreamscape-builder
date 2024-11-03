@@ -1,5 +1,6 @@
 import { parseAnsiCode } from '@/lib/ansi-parser';
 import { indexToRGB } from '@/lib/ansi-colors';
+import { Input } from "@/components/ui/input";
 
 interface PreviewProps {
   ansiCode: string;
@@ -44,12 +45,12 @@ export function Preview({ ansiCode }: PreviewProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Preview</h3>
-      <div 
-        className="w-full p-4 rounded bg-code-background font-mono text-sm"
+      <Input
+        value="The quick brown fox jumps over the lazy dog"
+        readOnly
+        className="font-mono text-sm bg-code-background text-code-foreground"
         style={getPreviewStyle()}
-      >
-        The quick brown fox jumps over the lazy dog
-      </div>
+      />
     </div>
   );
 }

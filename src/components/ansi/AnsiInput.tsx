@@ -39,7 +39,7 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
       <Input
         value={displayValue}
         onChange={(e) => handleChange(e.target.value)}
-        className="font-mono text-sm bg-code-background text-code-foreground min-h-[80px] p-4"
+        className="font-mono text-sm bg-code-background text-code-foreground"
       />
     </div>
   );
