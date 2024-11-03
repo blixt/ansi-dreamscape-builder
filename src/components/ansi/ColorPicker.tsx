@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { basicColors, indexToRGB } from "@/lib/ansi-utils";
 
 interface ColorPickerProps {
@@ -11,9 +11,9 @@ interface ColorPickerProps {
   bg256: number;
   setBg256: (value: number) => void;
   fgColor: number | null;
-  setFgColor: (color: number) => void;
+  setFgColor: (color: number | null) => void;
   bgColor: number | null;
-  setBgColor: (color: number) => void;
+  setBgColor: (color: number | null) => void;
 }
 
 export function ColorPicker({
@@ -28,14 +28,23 @@ export function ColorPicker({
   bgColor,
   setBgColor,
 }: ColorPickerProps) {
+  const ColorPreview = ({ value, onClick }: { value: number, onClick: (value: number) => void }) => (
+    <div 
+      className="h-6 w-2 cursor-pointer hover:scale-y-110 transition-transform" 
+      style={{ backgroundColor: indexToRGB(value) }}
+      onClick={() => onClick(value)}
+    />
+  );
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Color Mode</h3>
-        <div className="flex items-center gap-2">
-          <span>256 Colors</span>
-          <Switch checked={use256Color} onCheckedChange={setUse256Color} />
-        </div>
+      <div className="flex items-center gap-4">
+        <Checkbox 
+          id="use256Color"
+          checked={use256Color}
+          onCheckedChange={setUse256Color}
+        />
+        <label htmlFor="use256Color">Use 256 Colors</label>
       </div>
 
       {use256Color ? (
@@ -47,8 +56,13 @@ export function ColorPicker({
               onValueChange={(value) => setFg256(value[0])}
               max={255}
               step={1}
+              disabled={!use256Color}
             />
-            <div className="h-4 rounded" style={{ backgroundColor: indexToRGB(fg256) }} />
+            <div className="flex overflow-x-auto py-2 gap-[1px]">
+              {Array.from({ length: 256 }, (_, i) => (
+                <ColorPreview key={i} value={i} onClick={setFg256} />
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -58,8 +72,13 @@ export function ColorPicker({
               onValueChange={(value) => setBg256(value[0])}
               max={255}
               step={1}
+              disabled={!use256Color}
             />
-            <div className="h-4 rounded" style={{ backgroundColor: indexToRGB(bg256) }} />
+            <div className="flex overflow-x-auto py-2 gap-[1px]">
+              {Array.from({ length: 256 }, (_, i) => (
+                <ColorPreview key={i} value={i} onClick={setBg256} />
+              ))}
+            </div>
           </div>
         </div>
       ) : (
@@ -70,12 +89,13 @@ export function ColorPicker({
               {Object.entries(basicColors).map(([code, name]) => {
                 const colorIndex = parseInt(code) - 30;
                 const isBlack = colorIndex === 0;
+                const isSelected = fgColor === parseInt(code);
                 return (
                   <Button
                     key={code}
                     variant="outline"
-                    className={`h-auto py-2 ${fgColor === parseInt(code) ? 'ring-2 ring-primary' : ''}`}
-                    onClick={() => setFgColor(parseInt(code))}
+                    className={`h-auto py-2 ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setFgColor(isSelected ? null : parseInt(code))}
                     style={{
                       color: isBlack ? undefined : indexToRGB(colorIndex),
                       borderColor: indexToRGB(colorIndex)
@@ -96,12 +116,13 @@ export function ColorPicker({
               {Object.entries(basicColors).map(([code, name]) => {
                 const colorIndex = parseInt(code) - 30;
                 const textColor = colorIndex < 3 ? 'text-white' : 'text-black dark:text-white';
+                const isSelected = bgColor === colorIndex;
                 return (
                   <Button
                     key={code}
                     variant="outline"
-                    className={`h-auto py-2 ${bgColor === colorIndex ? 'ring-2 ring-primary' : ''}`}
-                    onClick={() => setBgColor(colorIndex)}
+                    className={`h-auto py-2 ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setBgColor(isSelected ? null : colorIndex)}
                     style={{
                       backgroundColor: indexToRGB(colorIndex),
                       borderColor: indexToRGB(colorIndex)
