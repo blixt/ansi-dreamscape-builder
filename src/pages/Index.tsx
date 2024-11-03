@@ -36,7 +36,7 @@ const Index = () => {
       if (bgColor !== null) parts.push(`48;5;${bg256}`);
     } else {
       if (fgColor !== null) parts.push(fgColor);
-      if (bgColor !== null) parts.push(bgColor + 10);
+      if (bgColor !== null) parts.push(bgColor + 40); // Fix: Changed from +10 to +40 for background colors
     }
 
     if (customCode) {
@@ -49,7 +49,7 @@ const Index = () => {
   const handleAnsiInput = (value: string) => {
     try {
       // Remove escape sequence prefix and 'm' suffix before parsing
-      const cleanCode = value.replace(/^\x1b\[/, '').replace(/m$/, '');
+      const cleanCode = value.replace(/^\x1b\[/, '').replace(/\\e\[/, '').replace(/m$/, '');
       const parsed = parseAnsiCode(cleanCode);
       setStyle(parsed.style);
       setFgColor(parsed.fgColor);

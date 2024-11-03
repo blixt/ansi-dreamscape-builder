@@ -19,6 +19,15 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
     });
   };
 
+  // Display \e instead of actual escape character
+  const displayValue = value.replace(/\x1b/g, '\\e');
+
+  const handleChange = (newValue: string) => {
+    // Convert \e back to actual escape character when user types
+    const actualValue = newValue.replace(/\\e/g, '\x1b');
+    onChange(actualValue);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -28,9 +37,9 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
         </Button>
       </div>
       <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="font-mono text-sm bg-code-background text-code-foreground min-h-[80px] px-4 py-3"
+        value={displayValue}
+        onChange={(e) => handleChange(e.target.value)}
+        className="font-mono text-sm bg-code-background text-code-foreground min-h-[80px] px-4 py-2"
       />
     </div>
   );
