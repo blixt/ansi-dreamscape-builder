@@ -22,7 +22,10 @@ export function Preview({ ansiCode }: PreviewProps) {
       };
       
       if (parsed.fgColor !== null) styles.color = basicColorMap[parsed.fgColor as keyof typeof basicColorMap];
-      if (parsed.bgColor !== null) styles.backgroundColor = basicColorMap[(parsed.bgColor + 30) as keyof typeof basicColorMap];
+      if (parsed.bgColor !== null) {
+        const bgColorCode = parsed.bgColor + 40;
+        styles.backgroundColor = basicColorMap[(bgColorCode - 10) as keyof typeof basicColorMap];
+      }
     }
     
     if (parsed.style === 1) styles.fontWeight = 'bold';
