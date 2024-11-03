@@ -6,7 +6,7 @@ import { ThemeProvider } from "next-themes"
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="dark" attribute="class">
+    <ThemeProvider defaultTheme="system" attribute="class">
       <App />
     </ThemeProvider>
   </React.StrictMode>,

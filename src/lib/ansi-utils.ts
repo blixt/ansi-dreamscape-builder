@@ -24,7 +24,7 @@ export const basicColors = {
 export const indexToRGB = (index: number): string => {
   if (index < 16) {
     const basic = [
-      '#000000', '#800000', '#008000', '#808000',
+      '#808080', '#800000', '#008000', '#808000', // Changed #000000 to #808080 for better visibility
       '#000080', '#800080', '#008080', '#c0c0c0',
       '#808080', '#ff0000', '#00ff00', '#ffff00',
       '#0000ff', '#ff00ff', '#00ffff', '#ffffff'
