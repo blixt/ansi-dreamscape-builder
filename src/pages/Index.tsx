@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { useTheme } from "next-themes";
 import { parseAnsiCode } from '@/lib/ansi-utils';
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
 import { Preview } from '@/components/ansi/Preview';
-import { useTheme } from "next-themes";
+import { AnsiInput } from '@/components/ansi/AnsiInput';
 
 const Index = () => {
-  const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const [style, setStyle] = useState(0);
   const [fgColor, setFgColor] = useState<number | null>(null);
@@ -65,14 +61,6 @@ const Index = () => {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(getAnsiCode());
-    toast({
-      title: "Copied to clipboard",
-      description: "The ANSI code has been copied to your clipboard.",
-    });
-  };
-
   return (
     <div className="min-h-screen p-4 md:p-8">
       <Card className="max-w-6xl mx-auto">
@@ -97,32 +85,13 @@ const Index = () => {
                 bgColor={bgColor}
                 setBgColor={setBgColor}
               />
-              <div className="space-y-2">
-                <label>Custom Parameters</label>
-                <Input
-                  value={customCode}
-                  onChange={(e) => setCustomCode(e.target.value)}
-                  placeholder="e.g. 6;1;4"
-                  className="font-mono"
-                />
-              </div>
             </div>
 
             <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">ANSI Code</h3>
-                  <Button variant="ghost" size="icon" onClick={copyToClipboard}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <input
-                  type="text"
-                  value={getAnsiCode()}
-                  onChange={(e) => handleAnsiInput(e.target.value)}
-                  className="w-full p-4 rounded bg-code-background text-code-foreground font-mono text-sm"
-                />
-              </div>
+              <AnsiInput 
+                value={getAnsiCode()} 
+                onChange={handleAnsiInput} 
+              />
               <Preview ansiCode={getAnsiCode()} />
             </div>
           </div>
