@@ -19,25 +19,19 @@ import {
 
 export {
   Menubar,
-  MenubarMenu,
+  MenubarPrimitive.Menu as MenubarMenu,
   MenubarTrigger,
   MenubarContent,
   MenubarItem,
   MenubarSeparator,
   MenubarLabel,
   MenubarCheckboxItem,
-  MenubarRadioGroup,
+  MenubarPrimitive.RadioGroup as MenubarRadioGroup,
   MenubarRadioItem,
-  MenubarPortal,
+  MenubarPrimitive.Portal as MenubarPortal,
   MenubarSubContent,
   MenubarSubTrigger,
-  MenubarGroup,
-  MenubarSub,
+  MenubarPrimitive.Group as MenubarGroup,
+  MenubarPrimitive.Sub as MenubarSub,
   MenubarShortcut,
 }
-
-export const MenubarMenu = MenubarPrimitive.Menu
-export const MenubarGroup = MenubarPrimitive.Group
-export const MenubarPortal = MenubarPrimitive.Portal
-export const MenubarSub = MenubarPrimitive.Sub
-export const MenubarRadioGroup = MenubarPrimitive.RadioGroup
