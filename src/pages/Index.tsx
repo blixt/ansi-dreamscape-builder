@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useTheme } from "next-themes";
-import { parseAnsiCode } from '@/lib/ansi-utils';
+import { parseAnsiCode } from '@/lib/ansi-parser';
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';

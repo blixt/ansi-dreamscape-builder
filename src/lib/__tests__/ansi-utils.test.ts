@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseAnsiCode, AnsiParseResult } from '../ansi-utils';
+import { parseAnsiCode, AnsiParseResult } from '../ansi-parser';
 
 describe('parseAnsiCode', () => {
   it('parses basic foreground color', () => {
