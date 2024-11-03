@@ -6,7 +6,9 @@ interface PreviewProps {
 
 export function Preview({ ansiCode }: PreviewProps) {
   const getPreviewStyle = () => {
-    const parsed = parseAnsiCode(ansiCode);
+    // Remove escape sequence prefix if present
+    const cleanCode = ansiCode.replace(/^\\x1b\[/, '').replace(/m$/, '');
+    const parsed = parseAnsiCode(cleanCode);
     const styles: Record<string, any> = {};
     
     if (parsed.use256Color) {
