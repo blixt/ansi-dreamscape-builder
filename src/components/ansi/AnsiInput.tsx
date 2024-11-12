@@ -1,6 +1,17 @@
 import React from 'react';
 import { TextSegment } from '@/lib/types';
 import { parseAnsiCode } from '@/lib/ansi-parser';
+import { indexToRGB } from '@/lib/ansi-colors';
+
+// Define basicColorMap constant
+const basicColorMap = {
+  0: '#000000', 1: '#ff0000', 2: '#00ff00',
+  3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
+  6: '#00ffff', 7: '#ffffff', 8: '#808080',
+  9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
+  12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
+  15: '#ffffff'
+};
 
 interface AnsiInputProps {
   segments: TextSegment[];
