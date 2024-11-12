@@ -60,6 +60,28 @@ const Index = () => {
     }
   }, [fgColor, bgColor, style]);
 
+  const optimizeSegments = (segments: TextSegment[]): TextSegment[] => {
+    return segments.reduce((acc: TextSegment[], curr: TextSegment) => {
+      if (acc.length === 0) return [curr];
+      
+      const last = acc[acc.length - 1];
+      const canMerge = last.style.style === curr.style.style &&
+                      last.style.fgColor === curr.style.fgColor &&
+                      last.style.bgColor === curr.style.bgColor;
+      
+      if (canMerge) {
+        acc[acc.length - 1] = {
+          text: last.text + curr.text,
+          style: last.style
+        };
+      } else {
+        acc.push(curr);
+      }
+      
+      return acc;
+    }, []);
+  };
+
   const updateSegmentStyle = (start: number, end: number) => {
     let currentPos = 0;
     let newSegments: TextSegment[] = [];
@@ -119,9 +141,9 @@ const Index = () => {
           newSegments.push({
             text: selectedText,
             style: {
-              fgColor,
-              bgColor,
-              style
+              style: style || segment.style.style,
+              fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
+              bgColor: bgColor !== null ? bgColor : segment.style.bgColor
             }
           });
         }
@@ -140,8 +162,8 @@ const Index = () => {
       currentPos += segment.text.length;
     }
     
-    // Filter out any empty segments and update state
-    newSegments = newSegments.filter(segment => segment.text.length > 0);
+    // Filter out any empty segments, optimize, and update state
+    newSegments = optimizeSegments(newSegments.filter(segment => segment.text.length > 0));
     console.log('Final segments:', newSegments);
     
     toast({
