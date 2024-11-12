@@ -74,28 +74,29 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
     setSegments(newSegments);
   };
 
+  // Convert segments back to raw ANSI string
+  const getRawAnsi = () => {
+    return segments.map(segment => {
+      let prefix = '';
+      if (segment.style.style !== 0 || segment.style.fgColor !== null || segment.style.bgColor !== null) {
+        const codes = [];
+        if (segment.style.style !== 0) codes.push(segment.style.style);
+        if (segment.style.fgColor !== null) codes.push(`38;5;${segment.style.fgColor}`);
+        if (segment.style.bgColor !== null) codes.push(`48;5;${segment.style.bgColor}`);
+        prefix = `\x1b[${codes.join(';')}m`;
+      }
+      return prefix + segment.text;
+    }).join('');
+  };
+
   return (
     <div>
       <textarea
+        value={getRawAnsi()}
         onChange={(e) => handleAnsiInput(e.target.value)}
-        className="w-full h-40 p-2 border rounded"
+        className="w-full h-40 p-2 font-mono text-sm bg-code-background text-code-foreground border rounded"
         placeholder="Enter ANSI codes here"
       />
-      <div className="mt-4">
-        {segments.map((segment, index) => (
-          <span key={index} style={{
-            color: segment.style.fgColor !== null ? (segment.style.fgColor >= 16 ? `rgb(${indexToRGB(segment.style.fgColor)})` : basicColorMap[segment.style.fgColor]) : undefined,
-            backgroundColor: segment.style.bgColor !== null ? (segment.style.bgColor >= 16 ? `rgb(${indexToRGB(segment.style.bgColor)})` : basicColorMap[segment.style.bgColor]) : undefined,
-            fontWeight: segment.style.style === 1 ? 'bold' : undefined,
-            opacity: segment.style.style === 2 ? 0.5 : undefined,
-            fontStyle: segment.style.style === 3 ? 'italic' : undefined,
-            textDecoration: segment.style.style === 4 ? 'underline' : undefined,
-            animation: segment.style.style === 5 ? 'blink 1s step-end infinite' : undefined,
-          }}>
-            {segment.text}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
