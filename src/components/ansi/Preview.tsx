@@ -3,11 +3,11 @@ import { indexToRGB } from '@/lib/ansi-colors';
 
 interface PreviewProps {
   segments: TextSegment[];
-  onSelect?: (selection: { start: number, end: number, text: string }) => void;
+  onSelect?: (selection: { start: number, end: number, text: string } | null) => void;
   onStyleUpdate?: (start: number, end: number) => void;
 }
 
-export function Preview({ segments, onSelect }: PreviewProps) {
+export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
   const getStyleForSegment = (segment: TextSegment): React.CSSProperties => {
     const styles: React.CSSProperties = {};
     
@@ -60,7 +60,15 @@ export function Preview({ segments, onSelect }: PreviewProps) {
 
   const handleSelect = () => {
     const selection = window.getSelection();
-    if (!selection || !onSelect) return;
+    if (!selection) {
+      onSelect?.(null);
+      return;
+    }
+
+    if (selection.isCollapsed) {
+      onSelect?.(null);
+      return;
+    }
 
     const range = selection.getRangeAt(0);
     const container = range.commonAncestorContainer.parentElement;
@@ -102,6 +110,7 @@ export function Preview({ segments, onSelect }: PreviewProps) {
       <div
         className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px] p-3 rounded-md border"
         onMouseUp={handleSelect}
+        onMouseDown={handleSelect}
         data-preview-container
       >
         {segments.map((segment, index) => (

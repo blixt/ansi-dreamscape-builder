@@ -18,6 +18,7 @@ const Index = () => {
     { text: "World", style: { fgColor: 1, bgColor: null, style: 1 } },
     { text: "", style: { fgColor: null, bgColor: null, style: 0 } }
   ]);
+  const [currentSelection, setCurrentSelection] = useState<{ start: number, end: number } | null>(null);
 
   useEffect(() => {
     const isDark = theme === 'dark' || 
@@ -25,15 +26,23 @@ const Index = () => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [theme]);
 
-  const handleSelection = ({ start, end, text }: { start: number, end: number, text: string }) => {
-    if (start === end) return;
+  const handleSelection = (selection: { start: number, end: number, text: string } | null) => {
+    if (!selection) {
+      setCurrentSelection(null);
+      setStyle(0);
+      setFgColor(null);
+      setBgColor(null);
+      return;
+    }
+    
+    setCurrentSelection({ start: selection.start, end: selection.end });
     
     let currentPos = 0;
     for (const segment of segments) {
       const segmentStart = currentPos;
       const segmentEnd = currentPos + segment.text.length;
       
-      if (start >= segmentStart && start < segmentEnd) {
+      if (selection.start >= segmentStart && selection.start < segmentEnd) {
         setStyle(segment.style.style);
         setFgColor(segment.style.fgColor);
         setBgColor(segment.style.bgColor);
@@ -42,6 +51,12 @@ const Index = () => {
       currentPos += segment.text.length;
     }
   };
+
+  useEffect(() => {
+    if (currentSelection) {
+      updateSegmentStyle(currentSelection.start, currentSelection.end);
+    }
+  }, [fgColor, bgColor, style]);
 
   const updateSegmentStyle = (start: number, end: number) => {
     let currentPos = 0;
