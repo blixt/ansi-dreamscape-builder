@@ -1,6 +1,4 @@
-import { Slider } from "@/components/ui/slider";
 import { ColorPreview } from "./ColorPreview";
-import { indexToRGB } from "@/lib/ansi-colors";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 
@@ -36,16 +34,7 @@ export function Color256Picker({
         </Button>
       </div>
       <div>
-        <Slider
-          value={[value]}
-          onValueChange={(newValue) => {
-            setValue(newValue[0]);
-            setColorValue(newValue[0]);
-          }}
-          max={255}
-          step={1}
-        />
-        <div className="flex flex-wrap gap-[1px] mt-2">
+        <div className="flex flex-wrap gap-[2px] mt-2">
           {Array.from({ length: 256 }, (_, i) => (
             <ColorPreview 
               key={i} 
