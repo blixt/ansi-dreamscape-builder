@@ -67,18 +67,45 @@ const Index = () => {
       const segmentStart = currentPos;
       const segmentEnd = currentPos + segment.text.length;
       
-      if (segmentStart >= start && segmentEnd <= end) {
+      // Case 1: Selection completely outside this segment
+      if (end <= segmentStart || start >= segmentEnd) {
+        newSegments.push(segment);
+      }
+      // Case 2: Selection affects this segment
+      else {
+        // If selection starts after segment start, create a prefix segment
+        if (start > segmentStart) {
+          const prefixLength = start - segmentStart;
+          newSegments.push({
+            text: segment.text.substring(0, prefixLength),
+            style: { ...segment.style }
+          });
+        }
+
+        // Create the styled segment
+        const selectionStartInSegment = Math.max(0, start - segmentStart);
+        const selectionEndInSegment = Math.min(segment.text.length, end - segmentStart);
         newSegments.push({
-          text: segment.text,
+          text: segment.text.substring(selectionStartInSegment, selectionEndInSegment),
           style: {
             fgColor,
             bgColor,
             style
           }
         });
-      } else {
-        newSegments.push(segment);
+
+        // If selection ends before segment end, create a suffix segment
+        if (end < segmentEnd) {
+          const suffixText = segment.text.substring(selectionEndInSegment);
+          if (suffixText) {  // Only create suffix segment if there's text
+            newSegments.push({
+              text: suffixText,
+              style: { ...segment.style }
+            });
+          }
+        }
       }
+      
       currentPos += segment.text.length;
     }
     
