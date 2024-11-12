@@ -86,38 +86,20 @@ const Index = () => {
     let currentPos = 0;
     let newSegments: TextSegment[] = [];
     
-    console.log('Selection range:', { start, end });
-    console.log('Original segments:', segments);
-    
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
       const segmentStart = currentPos;
       const segmentEnd = currentPos + segment.text.length;
       
-      console.log(`Processing segment ${i}:`, {
-        text: segment.text,
-        segmentStart,
-        segmentEnd,
-        currentPos
-      });
-      
       // Selection completely outside this segment
       if (end <= segmentStart || start >= segmentEnd) {
-        console.log('Selection outside segment - keeping original:', segment.text);
         newSegments.push(segment);
       }
       // Selection overlaps with this segment
       else {
-        console.log('Selection overlaps with segment:', {
-          segmentText: segment.text,
-          selectionStart: start - segmentStart,
-          selectionEnd: end - segmentStart
-        });
-        
         // Part 1: Text before selection in this segment
         if (start > segmentStart) {
           const beforeText = segment.text.substring(0, start - segmentStart);
-          console.log('Before selected text:', beforeText);
           if (beforeText) {
             newSegments.push({
               text: beforeText,
@@ -131,26 +113,26 @@ const Index = () => {
         const selectionEndInSegment = Math.min(segment.text.length, end - segmentStart);
         const selectedText = segment.text.substring(selectionStartInSegment, selectionEndInSegment);
         
-        console.log('Selected text portion:', {
-          selectedText,
-          selectionStartInSegment,
-          selectionEndInSegment
-        });
-        
         if (selectedText) {
+          // When style is 0 (Normal), preserve colors but reset text style
+          const newStyle = style === 0 ? {
+            style: 0,
+            fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
+            bgColor: bgColor !== null ? bgColor : segment.style.bgColor
+          } : {
+            style: style || segment.style.style,
+            fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
+            bgColor: bgColor !== null ? bgColor : segment.style.bgColor
+          };
+
           newSegments.push({
             text: selectedText,
-            style: {
-              style: style || segment.style.style,
-              fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
-              bgColor: bgColor !== null ? bgColor : segment.style.bgColor
-            }
+            style: newStyle
           });
         }
 
         // Part 3: Text after selection in this segment
         const afterText = segment.text.substring(selectionEndInSegment);
-        console.log('After selected text:', afterText);
         if (afterText) {
           newSegments.push({
             text: afterText,
@@ -162,15 +144,8 @@ const Index = () => {
       currentPos += segment.text.length;
     }
     
-    // Filter out any empty segments, optimize, and update state
+    // Filter out empty segments and optimize
     newSegments = optimizeSegments(newSegments.filter(segment => segment.text.length > 0));
-    console.log('Final segments:', newSegments);
-    
-    toast({
-      title: "Debug Info",
-      description: `Selection: ${start}-${end}, Segments: ${newSegments.map(s => `"${s.text}"`).join(', ')}`,
-    });
-    
     setSegments(newSegments);
   };
 
