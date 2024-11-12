@@ -77,15 +77,27 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
       commonAncestor: range.commonAncestorContainer.textContent
     });
 
-    const previewDiv = range.commonAncestorContainer.parentElement?.closest('[data-preview-container]');
+    // Find the preview container by traversing up from either the start or end container
+    const previewDiv = range.startContainer.parentElement?.closest('[data-preview-container]') ||
+                      range.endContainer.parentElement?.closest('[data-preview-container]');
+    
     if (!previewDiv) {
-      console.log('Preview container not found');
-      return;
+      console.log('Preview container not found, trying alternative method');
+      // If still not found, try finding it from the common ancestor
+      const alternativePreviewDiv = range.commonAncestorContainer.parentElement?.closest('[data-preview-container]') ||
+                                  (range.commonAncestorContainer as Element)?.closest('[data-preview-container]');
+      if (!alternativePreviewDiv) {
+        console.log('Preview container still not found after alternative method');
+        return;
+      }
     }
 
     // Get all text nodes within the preview container
     const textNodes: Node[] = [];
-    const walker = document.createTreeWalker(previewDiv, NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(
+      previewDiv || range.commonAncestorContainer.parentElement!,
+      NodeFilter.SHOW_TEXT
+    );
     let node;
     while (node = walker.nextNode()) {
       textNodes.push(node);
