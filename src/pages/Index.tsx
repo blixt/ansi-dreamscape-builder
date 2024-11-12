@@ -10,22 +10,27 @@ import { TextSegment } from '@/lib/types';
 import { useToast } from '@/components/ui/use-toast';
 
 /*
- * DON'T DELETE THIS COMMENT - Style Update Cases
+ * DON'T DELETE THIS COMMENT - Text Formatting Cases
  * 
- * 1. Color Updates:
- *    - fgColor/bgColor is a number (0-255) -> explicitly set that color
- *    - fgColor/bgColor is null -> no change to color
+ * Core Principle: Style and Color updates are completely independent
  * 
- * 2. Style Updates:
- *    - style is 0 -> explicitly reset to normal (remove bold, italic, etc.)
- *    - style is 1-9 -> explicitly set that style
- *    - style is null -> no change to style
+ * 1. Style Updates (Bold, Italic, etc):
+ *    - Only modify the style property
+ *    - Never touch fgColor or bgColor
+ *    - style: 0 means normal text
+ *    - style: 1-9 means specific style
+ *    - When merging segments, only merge if BOTH style AND colors match
  * 
- * 3. Selection Handling:
- *    - No selection -> no changes
- *    - Partial segment -> split into multiple segments
- *    - Multiple segments -> handle each segment
- *    - Post-process -> merge adjacent segments with identical styles
+ * 2. Color Updates:
+ *    - Only modify fgColor/bgColor
+ *    - Never touch the style property
+ *    - null means "no color" (default text/background)
+ *    - number means specific color (0-255)
+ * 
+ * 3. Segment Operations:
+ *    - Split: When selection partially overlaps, create new segments
+ *    - Merge: Only merge adjacent segments if ALL properties match
+ *    - Update: Style updates never touch colors, color updates never touch styles
  */
 
 const Index = () => {
@@ -41,18 +46,11 @@ const Index = () => {
   ]);
   const [currentSelection, setCurrentSelection] = useState<{ start: number, end: number } | null>(null);
 
-  useEffect(() => {
-    const isDark = theme === 'dark' || 
-      (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.classList.toggle('dark', isDark);
-  }, [theme]);
-
   const handleSelection = (selection: { start: number, end: number, text: string } | null) => {
     if (!selection) {
       setCurrentSelection(null);
       return;
     }
-    
     setCurrentSelection({ start: selection.start, end: selection.end });
   };
 
@@ -61,6 +59,7 @@ const Index = () => {
       if (acc.length === 0) return [curr];
       
       const last = acc[acc.length - 1];
+      // Only merge if ALL properties match exactly
       const canMerge = last.style.style === curr.style.style &&
                       last.style.fgColor === curr.style.fgColor &&
                       last.style.bgColor === curr.style.bgColor;
@@ -87,13 +86,9 @@ const Index = () => {
       const segmentStart = currentPos;
       const segmentEnd = currentPos + segment.text.length;
       
-      // Selection completely outside this segment
       if (end <= segmentStart || start >= segmentEnd) {
         newSegments.push(segment);
-      }
-      // Selection overlaps with this segment
-      else {
-        // Part 1: Text before selection in this segment
+      } else {
         if (start > segmentStart) {
           const beforeText = segment.text.substring(0, start - segmentStart);
           if (beforeText) {
@@ -104,18 +99,18 @@ const Index = () => {
           }
         }
 
-        // Part 2: Selected text in this segment
         const selectionStartInSegment = Math.max(0, start - segmentStart);
         const selectionEndInSegment = Math.min(segment.text.length, end - segmentStart);
         const selectedText = segment.text.substring(selectionStartInSegment, selectionEndInSegment);
         
         if (selectedText) {
+          // Create new style object based on update type
           const newStyle = {
-            // Only update style if a new style is explicitly set
-            style: style === null ? segment.style.style : style,
-            // Only update colors if new colors are explicitly set
-            fgColor: fgColor === null ? segment.style.fgColor : fgColor,
-            bgColor: bgColor === null ? segment.style.bgColor : bgColor
+            // For style updates: keep existing colors, update style
+            style: style !== null ? style : segment.style.style,
+            // For color updates: keep existing style, update colors
+            fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
+            bgColor: bgColor !== null ? bgColor : segment.style.bgColor
           };
 
           newSegments.push({
@@ -124,7 +119,6 @@ const Index = () => {
           });
         }
 
-        // Part 3: Text after selection in this segment
         const afterText = segment.text.substring(selectionEndInSegment);
         if (afterText) {
           newSegments.push({
@@ -137,7 +131,6 @@ const Index = () => {
       currentPos += segment.text.length;
     }
     
-    // Filter out empty segments and optimize
     newSegments = optimizeSegments(newSegments.filter(segment => segment.text.length > 0));
     setSegments(newSegments);
   };
