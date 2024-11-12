@@ -60,47 +60,51 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
 
   const handleSelect = () => {
     const selection = window.getSelection();
-    if (!selection) {
-      onSelect?.(null);
-      return;
-    }
-
-    if (selection.isCollapsed) {
+    if (!selection || selection.isCollapsed) {
       onSelect?.(null);
       return;
     }
 
     const range = selection.getRangeAt(0);
-    const container = range.commonAncestorContainer.parentElement;
-    if (!container) return;
-
-    let currentPos = 0;
-    let selectionStart = -1;
-    let selectionEnd = -1;
-
-    const previewDiv = container.closest('[data-preview-container]');
+    const previewDiv = range.commonAncestorContainer.parentElement?.closest('[data-preview-container]');
     if (!previewDiv) return;
 
-    const spans = Array.from(previewDiv.getElementsByTagName('span'));
-    for (let i = 0; i < spans.length; i++) {
-      const span = spans[i];
-      const spanLength = span.textContent?.length || 0;
-
-      if (selection.containsNode(span, true)) {
-        if (selectionStart === -1) {
-          selectionStart = currentPos;
-        }
-        selectionEnd = currentPos + spanLength;
-      }
-      currentPos += spanLength;
+    // Get all text nodes within the preview container
+    const textNodes: Node[] = [];
+    const walker = document.createTreeWalker(previewDiv, NodeFilter.SHOW_TEXT);
+    let node;
+    while (node = walker.nextNode()) {
+      textNodes.push(node);
     }
 
-    if (selectionStart !== -1 && selectionEnd !== -1) {
-      onSelect({
-        start: selectionStart,
-        end: selectionEnd,
+    // Calculate the absolute start position
+    let absoluteStart = 0;
+    for (let i = 0; i < textNodes.length; i++) {
+      if (textNodes[i] === range.startContainer) {
+        absoluteStart += range.startOffset;
+        break;
+      }
+      absoluteStart += textNodes[i].textContent?.length || 0;
+    }
+
+    // Calculate the absolute end position
+    let absoluteEnd = 0;
+    for (let i = 0; i < textNodes.length; i++) {
+      if (textNodes[i] === range.endContainer) {
+        absoluteEnd += range.endOffset;
+        break;
+      }
+      absoluteEnd += textNodes[i].textContent?.length || 0;
+    }
+
+    if (absoluteStart !== absoluteEnd) {
+      onSelect?.({
+        start: absoluteStart,
+        end: absoluteEnd,
         text: selection.toString()
       });
+    } else {
+      onSelect?.(null);
     }
   };
 
