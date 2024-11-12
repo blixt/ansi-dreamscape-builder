@@ -97,13 +97,10 @@ const Index = () => {
         const selectedText = segment.text.substring(selectionStartInSegment, selectionEndInSegment);
         
         if (selectedText) {
-          // When style is 0 (Normal), preserve colors but reset text style
-          const newStyle = style === 0 ? {
-            style: 0,
-            fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
-            bgColor: bgColor !== null ? bgColor : segment.style.bgColor
-          } : {
-            style: style || segment.style.style,
+          const newStyle = {
+            // Preserve existing style if we're only changing colors
+            style: style === 0 ? segment.style.style : style,
+            // Only update colors if they're explicitly set
             fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
             bgColor: bgColor !== null ? bgColor : segment.style.bgColor
           };
