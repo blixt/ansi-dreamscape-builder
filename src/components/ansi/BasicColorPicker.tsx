@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { indexToRGB } from "@/lib/ansi-colors";
+import { ChevronRight } from "lucide-react";
 
 interface BasicColorPickerProps {
   label: string;
   selectedColor: number | null;
   setSelectedColor: (color: number | null) => void;
   isForeground?: boolean;
+  onModeSwitch: () => void;
 }
 
 export function BasicColorPicker({
@@ -13,6 +15,7 @@ export function BasicColorPicker({
   selectedColor,
   setSelectedColor,
   isForeground = true,
+  onModeSwitch,
 }: BasicColorPickerProps) {
   const basicColors = {
     0: 'Black', 1: 'Red', 2: 'Green',
@@ -25,7 +28,18 @@ export function BasicColorPicker({
 
   return (
     <div className="space-y-2">
-      <label>{label}</label>
+      <div className="flex items-center justify-between">
+        <label>{label}</label>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onModeSwitch}
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          Switch to 256 colors
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
       <div className="grid grid-cols-4 gap-2">
         {Object.entries(basicColors).map(([code, name]) => {
           const colorIndex = parseInt(code);
