@@ -60,14 +60,28 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
 
   const handleSelect = () => {
     const selection = window.getSelection();
+    console.log('Selection event triggered:', selection ? 'has selection' : 'no selection');
+    
     if (!selection || selection.isCollapsed) {
+      console.log('Selection is null or collapsed');
       onSelect?.(null);
       return;
     }
 
     const range = selection.getRangeAt(0);
+    console.log('Selection range:', {
+      startContainer: range.startContainer.textContent,
+      endContainer: range.endContainer.textContent,
+      startOffset: range.startOffset,
+      endOffset: range.endOffset,
+      commonAncestor: range.commonAncestorContainer.textContent
+    });
+
     const previewDiv = range.commonAncestorContainer.parentElement?.closest('[data-preview-container]');
-    if (!previewDiv) return;
+    if (!previewDiv) {
+      console.log('Preview container not found');
+      return;
+    }
 
     // Get all text nodes within the preview container
     const textNodes: Node[] = [];
@@ -76,6 +90,7 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
     while (node = walker.nextNode()) {
       textNodes.push(node);
     }
+    console.log('Found text nodes:', textNodes.map(n => n.textContent));
 
     // Calculate the absolute start position
     let absoluteStart = 0;
@@ -97,6 +112,13 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
       absoluteEnd += textNodes[i].textContent?.length || 0;
     }
 
+    console.log('Calculated positions:', {
+      absoluteStart,
+      absoluteEnd,
+      selectedText: selection.toString(),
+      totalTextLength: textNodes.reduce((acc, node) => acc + (node.textContent?.length || 0), 0)
+    });
+
     if (absoluteStart !== absoluteEnd) {
       onSelect?.({
         start: absoluteStart,
@@ -104,6 +126,7 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
         text: selection.toString()
       });
     } else {
+      console.log('Start and end positions are the same, clearing selection');
       onSelect?.(null);
     }
   };
