@@ -26,6 +26,11 @@ export function BasicColorPicker({
     15: 'Bright White'
   };
 
+  // Helper function to determine if a color needs dark text
+  const needsDarkText = (colorIndex: number) => {
+    return [7, 10, 11, 14, 15].includes(colorIndex);
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -40,12 +45,15 @@ export function BasicColorPicker({
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-[2px]">
         {Object.entries(basicColors).map(([code, name]) => {
           const colorIndex = parseInt(code);
           const isBlack = colorIndex === 0;
           const isSelected = selectedColor === colorIndex;
-          const textColor = !isForeground && colorIndex < 3 ? 'text-white' : 'text-black dark:text-white';
+          const shouldUseDarkText = needsDarkText(colorIndex);
+          const textColor = !isForeground 
+            ? (shouldUseDarkText ? 'text-black' : 'text-white') 
+            : (isBlack ? 'text-foreground dark:text-muted-foreground/50' : '');
           
           return (
             <Button
@@ -60,7 +68,7 @@ export function BasicColorPicker({
                 borderColor: indexToRGB(colorIndex)
               }}
             >
-              <span className={isForeground && isBlack ? 'text-foreground dark:text-muted-foreground/50' : textColor}>
+              <span className={textColor}>
                 {name}
               </span>
             </Button>
