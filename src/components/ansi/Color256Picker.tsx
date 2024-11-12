@@ -45,7 +45,7 @@ export function Color256Picker({
           max={255}
           step={1}
         />
-        <div className="flex overflow-x-auto py-2 gap-[1px]">
+        <div className="grid grid-cols-32 gap-[1px] mt-2 p-2 border rounded-md">
           {Array.from({ length: 256 }, (_, i) => (
             <ColorPreview 
               key={i} 
