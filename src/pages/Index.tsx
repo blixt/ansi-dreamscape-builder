@@ -98,10 +98,9 @@ const Index = () => {
         
         if (selectedText) {
           const newStyle = {
-            // If style is explicitly set to 0 (Normal), reset it
-            // Otherwise, if style is undefined or null, keep existing style
-            style: style === undefined ? segment.style.style : style,
-            // Only update colors if they're explicitly set
+            // Only update style if it was explicitly changed (not when changing colors)
+            style: style !== 0 ? style : segment.style.style,
+            // Only update colors if they were explicitly changed
             fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
             bgColor: bgColor !== null ? bgColor : segment.style.bgColor
           };
