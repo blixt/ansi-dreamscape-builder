@@ -16,18 +16,25 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
     return segments.map(segment => {
       let code = '';
       if (segment.style.style !== 0 || segment.style.fgColor !== null || 
-          segment.style.bgColor !== null || segment.style.fg256 !== null || 
-          segment.style.bg256 !== null) {
+          segment.style.bgColor !== null) {
         const parts = [];
         
         if (segment.style.style !== 0) parts.push(segment.style.style);
         
-        if (segment.style.use256Color) {
-          if (segment.style.fg256 !== null) parts.push(`38;5;${segment.style.fg256}`);
-          if (segment.style.bg256 !== null) parts.push(`48;5;${segment.style.bg256}`);
-        } else {
-          if (segment.style.fgColor !== null) parts.push(segment.style.fgColor);
-          if (segment.style.bgColor !== null) parts.push(segment.style.bgColor + 10);
+        if (segment.style.fgColor !== null) {
+          if (segment.style.fgColor >= 16) {
+            parts.push(`38;5;${segment.style.fgColor}`);
+          } else {
+            parts.push(segment.style.fgColor + 30);
+          }
+        }
+        
+        if (segment.style.bgColor !== null) {
+          if (segment.style.bgColor >= 16) {
+            parts.push(`48;5;${segment.style.bgColor}`);
+          } else {
+            parts.push(segment.style.bgColor + 40);
+          }
         }
         
         code = `\\e[${parts.join(';')}m`;

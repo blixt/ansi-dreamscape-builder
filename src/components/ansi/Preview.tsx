@@ -11,19 +11,35 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
   const getStyleForSegment = (segment: TextSegment): React.CSSProperties => {
     const styles: React.CSSProperties = {};
     
-    if (segment.style.use256Color) {
-      if (segment.style.fg256 !== null) styles.color = indexToRGB(segment.style.fg256);
-      if (segment.style.bg256 !== null) styles.backgroundColor = indexToRGB(segment.style.bg256);
-    } else {
-      const basicColorMap = {
-        30: '#000000', 31: '#ff0000', 32: '#00ff00',
-        33: '#ffff00', 34: '#0000ff', 35: '#ff00ff',
-        36: '#00ffff', 37: '#ffffff'
-      };
-      
-      if (segment.style.fgColor !== null) styles.color = basicColorMap[segment.style.fgColor as keyof typeof basicColorMap];
-      if (segment.style.bgColor !== null) {
-        styles.backgroundColor = basicColorMap[(segment.style.bgColor + 30) as keyof typeof basicColorMap];
+    if (segment.style.fgColor !== null) {
+      if (segment.style.fgColor >= 16) {
+        styles.color = indexToRGB(segment.style.fgColor);
+      } else {
+        const basicColorMap = {
+          0: '#000000', 1: '#ff0000', 2: '#00ff00',
+          3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
+          6: '#00ffff', 7: '#ffffff', 8: '#808080',
+          9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
+          12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
+          15: '#ffffff'
+        };
+        styles.color = basicColorMap[segment.style.fgColor as keyof typeof basicColorMap];
+      }
+    }
+    
+    if (segment.style.bgColor !== null) {
+      if (segment.style.bgColor >= 16) {
+        styles.backgroundColor = indexToRGB(segment.style.bgColor);
+      } else {
+        const basicColorMap = {
+          0: '#000000', 1: '#ff0000', 2: '#00ff00',
+          3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
+          6: '#00ffff', 7: '#ffffff', 8: '#808080',
+          9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
+          12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
+          15: '#ffffff'
+        };
+        styles.backgroundColor = basicColorMap[segment.style.bgColor as keyof typeof basicColorMap];
       }
     }
     
