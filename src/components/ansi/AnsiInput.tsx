@@ -50,15 +50,7 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
           currentText = '';
         }
         
-        const parseResult = parseAnsiCode(match, {
-          style: currentStyle.style,
-          fgColor: currentStyle.fgColor,
-          bgColor: currentStyle.bgColor,
-          fg256: null,
-          bg256: null,
-          use256Color: false,
-          customCode: ''
-        });
+        const parseResult = parseAnsiCode(match, currentStyle);
         
         currentStyle = {
           style: parseResult.style,
