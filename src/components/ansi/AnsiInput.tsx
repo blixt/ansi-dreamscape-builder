@@ -2,32 +2,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { TextSegment } from "@/lib/types";
 
 interface AnsiInputProps {
-  value: string;
-  onChange: (value: string) => void;
+  segments: TextSegment[];
+  setSegments: (segments: TextSegment[]) => void;
 }
 
-export function AnsiInput({ value, onChange }: AnsiInputProps) {
+export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
   const { toast } = useToast();
 
+  const segmentsToAnsiString = (segments: TextSegment[]): string => {
+    return segments.map(segment => {
+      let code = '';
+      if (segment.style.style !== 0 || segment.style.fgColor !== null || 
+          segment.style.bgColor !== null || segment.style.fg256 !== null || 
+          segment.style.bg256 !== null) {
+        const parts = [];
+        
+        if (segment.style.style !== 0) parts.push(segment.style.style);
+        
+        if (segment.style.use256Color) {
+          if (segment.style.fg256 !== null) parts.push(`38;5;${segment.style.fg256}`);
+          if (segment.style.bg256 !== null) parts.push(`48;5;${segment.style.bg256}`);
+        } else {
+          if (segment.style.fgColor !== null) parts.push(segment.style.fgColor);
+          if (segment.style.bgColor !== null) parts.push(segment.style.bgColor + 10);
+        }
+        
+        code = `\\e[${parts.join(';')}m`;
+      }
+      return code + segment.text;
+    }).join('') + '\\e[0m';
+  };
+
   const copyToClipboard = () => {
-    // Convert escape character to \e before copying
-    const displayValue = value.replace(/\x1b/g, '\\e');
-    navigator.clipboard.writeText(displayValue);
+    const ansiString = segmentsToAnsiString(segments);
+    navigator.clipboard.writeText(ansiString);
     toast({
       title: "Copied to clipboard",
       description: "The ANSI code has been copied to your clipboard.",
     });
-  };
-
-  // Display \e instead of actual escape character
-  const displayValue = value.replace(/\x1b/g, '\\e');
-
-  const handleChange = (newValue: string) => {
-    // Convert \e back to actual escape character when user types
-    const actualValue = newValue.replace(/\\e/g, '\x1b');
-    onChange(actualValue);
   };
 
   return (
@@ -39,8 +54,8 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
         </Button>
       </div>
       <Textarea
-        value={displayValue}
-        onChange={(e) => handleChange(e.target.value)}
+        value={segmentsToAnsiString(segments)}
+        readOnly
         className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px]"
       />
     </div>

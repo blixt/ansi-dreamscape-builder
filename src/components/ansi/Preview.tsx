@@ -1,25 +1,19 @@
-import { parseAnsiCode } from '@/lib/ansi-parser';
+import { TextSegment } from '@/lib/types';
 import { indexToRGB } from '@/lib/ansi-colors';
-import { Textarea } from "@/components/ui/textarea";
 
 interface PreviewProps {
-  ansiCode: string;
-  onSelect?: (selection: { start: number, end: number }) => void;
+  segments: TextSegment[];
+  onSelect?: (selection: { start: number, end: number, text: string }) => void;
+  onStyleUpdate?: (start: number, end: number) => void;
 }
 
-interface TextSegment {
-  text: string;
-  style: React.CSSProperties;
-}
-
-export function Preview({ ansiCode, onSelect }: PreviewProps) {
-  const getStyleForCode = (code: string): React.CSSProperties => {
-    const parsed = parseAnsiCode(code);
+export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
+  const getStyleForSegment = (segment: TextSegment): React.CSSProperties => {
     const styles: React.CSSProperties = {};
     
-    if (parsed.use256Color) {
-      if (parsed.fg256 !== null) styles.color = indexToRGB(parsed.fg256);
-      if (parsed.bg256 !== null) styles.backgroundColor = indexToRGB(parsed.bg256);
+    if (segment.style.use256Color) {
+      if (segment.style.fg256 !== null) styles.color = indexToRGB(segment.style.fg256);
+      if (segment.style.bg256 !== null) styles.backgroundColor = indexToRGB(segment.style.bg256);
     } else {
       const basicColorMap = {
         30: '#000000', 31: '#ff0000', 32: '#00ff00',
@@ -27,73 +21,36 @@ export function Preview({ ansiCode, onSelect }: PreviewProps) {
         36: '#00ffff', 37: '#ffffff'
       };
       
-      if (parsed.fgColor !== null) styles.color = basicColorMap[parsed.fgColor as keyof typeof basicColorMap];
-      if (parsed.bgColor !== null) {
-        styles.backgroundColor = basicColorMap[(parsed.bgColor + 30) as keyof typeof basicColorMap];
+      if (segment.style.fgColor !== null) styles.color = basicColorMap[segment.style.fgColor as keyof typeof basicColorMap];
+      if (segment.style.bgColor !== null) {
+        styles.backgroundColor = basicColorMap[(segment.style.bgColor + 30) as keyof typeof basicColorMap];
       }
     }
     
-    if (parsed.style === 1) styles.fontWeight = 'bold';
-    if (parsed.style === 2) styles.opacity = 0.5;
-    if (parsed.style === 3) styles.fontStyle = 'italic';
-    if (parsed.style === 4) styles.textDecoration = 'underline';
-    if (parsed.style === 5) styles.animation = 'blink 1s step-end infinite';
-    if (parsed.style === 7) {
+    if (segment.style.style === 1) styles.fontWeight = 'bold';
+    if (segment.style.style === 2) styles.opacity = 0.5;
+    if (segment.style.style === 3) styles.fontStyle = 'italic';
+    if (segment.style.style === 4) styles.textDecoration = 'underline';
+    if (segment.style.style === 5) styles.animation = 'blink 1s step-end infinite';
+    if (segment.style.style === 7) {
       const temp = styles.color;
       styles.color = styles.backgroundColor;
       styles.backgroundColor = temp;
     }
-    if (parsed.style === 9) styles.textDecoration = 'line-through';
+    if (segment.style.style === 9) styles.textDecoration = 'line-through';
     
     return styles;
-  };
-
-  const parseTextIntoSegments = (text: string): TextSegment[] => {
-    const segments: TextSegment[] = [];
-    const regex = /\x1b\[[0-9;]*m|\\\e\[[0-9;]*m/g;
-    let currentStyle: React.CSSProperties = {};
-    let lastIndex = 0;
-    let match;
-
-    // Convert \e to actual escape character for processing
-    text = text.replace(/\\e/g, '\x1b');
-
-    while ((match = regex.exec(text)) !== null) {
-      // Add text segment before the ANSI code if it exists
-      if (match.index > lastIndex) {
-        segments.push({
-          text: text.substring(lastIndex, match.index),
-          style: { ...currentStyle }
-        });
-      }
-
-      // Update current style based on the ANSI code
-      currentStyle = getStyleForCode(match[0]);
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text with current style
-    if (lastIndex < text.length) {
-      segments.push({
-        text: text.substring(lastIndex),
-        style: { ...currentStyle }
-      });
-    }
-
-    return segments;
   };
 
   const handleSelect = (e: React.SyntheticEvent<HTMLDivElement>) => {
     const selection = window.getSelection();
     if (selection && onSelect) {
-      // Calculate selection positions based on text content
       const start = selection.anchorOffset;
       const end = selection.focusOffset;
-      onSelect({ start, end });
+      const text = selection.toString();
+      onSelect({ start, end, text });
     }
   };
-
-  const segments = parseTextIntoSegments(ansiCode);
 
   return (
     <div className="space-y-4">
@@ -103,7 +60,7 @@ export function Preview({ ansiCode, onSelect }: PreviewProps) {
         onSelect={handleSelect}
       >
         {segments.map((segment, index) => (
-          <span key={index} style={segment.style}>
+          <span key={index} style={getStyleForSegment(segment)}>
             {segment.text}
           </span>
         ))}

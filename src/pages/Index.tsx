@@ -7,6 +7,7 @@ import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
 import { Preview } from '@/components/ansi/Preview';
 import { AnsiInput } from '@/components/ansi/AnsiInput';
+import { TextSegment } from '@/lib/types';
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
@@ -16,8 +17,11 @@ const Index = () => {
   const [fg256, setFg256] = useState(1);
   const [bg256, setBg256] = useState(1);
   const [use256Color, setUse256Color] = useState(false);
-  const [customCode, setCustomCode] = useState('');
-  const [ansiCode, setAnsiCode] = useState('Hello \\e[1;31mWorld\\e[0m');
+  const [segments, setSegments] = useState<TextSegment[]>([
+    { text: "Hello ", style: { fgColor: null, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 0 } },
+    { text: "World", style: { fgColor: 31, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 1 } },
+    { text: "", style: { fgColor: null, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 0 } }
+  ]);
 
   useEffect(() => {
     const isDark = theme === 'dark' || 
@@ -25,22 +29,60 @@ const Index = () => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [theme]);
 
-  const handleSelection = ({ start, end }: { start: number, end: number }) => {
+  const handleSelection = ({ start, end, text }: { start: number, end: number, text: string }) => {
     if (start === end) return;
     
-    // Get the ANSI code at the start of selection
-    const code = ansiCode.substring(0, start);
-    const parsed = parseAnsiCode(code);
-    
-    // Update the UI state based on the parsed code
-    setStyle(parsed.style);
-    setFgColor(parsed.fgColor);
-    setBgColor(parsed.bgColor);
-    setUse256Color(parsed.use256Color);
-    if (parsed.use256Color) {
-      if (parsed.fg256 !== null) setFg256(parsed.fg256);
-      if (parsed.bg256 !== null) setBg256(parsed.bg256);
+    // Find the segment containing the selection
+    let currentPos = 0;
+    for (const segment of segments) {
+      const segmentStart = currentPos;
+      const segmentEnd = currentPos + segment.text.length;
+      
+      if (start >= segmentStart && start < segmentEnd) {
+        setStyle(segment.style.style);
+        setFgColor(segment.style.fgColor);
+        setBgColor(segment.style.bgColor);
+        setUse256Color(segment.style.use256Color);
+        if (segment.style.use256Color) {
+          if (segment.style.fg256 !== null) setFg256(segment.style.fg256);
+          if (segment.style.bg256 !== null) setBg256(segment.style.bg256);
+        }
+        break;
+      }
+      currentPos += segment.text.length;
     }
+  };
+
+  const updateSegmentStyle = (start: number, end: number) => {
+    setSegments(prevSegments => {
+      const newSegments: TextSegment[] = [];
+      let currentPos = 0;
+      
+      for (const segment of prevSegments) {
+        const segmentStart = currentPos;
+        const segmentEnd = currentPos + segment.text.length;
+        
+        if (start >= segmentStart && start < segmentEnd) {
+          // Update the style of this segment
+          newSegments.push({
+            text: segment.text,
+            style: {
+              fgColor,
+              bgColor,
+              fg256: use256Color ? fg256 : null,
+              bg256: use256Color ? bg256 : null,
+              use256Color,
+              style
+            }
+          });
+        } else {
+          newSegments.push(segment);
+        }
+        currentPos += segment.text.length;
+      }
+      
+      return newSegments;
+    });
   };
 
   return (
@@ -71,12 +113,13 @@ const Index = () => {
 
             <div className="space-y-6">
               <AnsiInput 
-                value={ansiCode} 
-                onChange={setAnsiCode} 
+                segments={segments}
+                setSegments={setSegments}
               />
               <Preview 
-                ansiCode={ansiCode}
+                segments={segments}
                 onSelect={handleSelection}
+                onStyleUpdate={updateSegmentStyle}
               />
             </div>
           </div>
