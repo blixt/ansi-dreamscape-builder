@@ -35,7 +35,8 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
     let currentStyle = {
       style: 0,
       fgColor: null as number | null,
-      bgColor: null as number | null
+      bgColor: null as number | null,
+      customCode: ''
     };
 
     let currentText = '';
@@ -55,7 +56,8 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
         currentStyle = {
           style: parseResult.style,
           fgColor: parseResult.fgColor,
-          bgColor: parseResult.bgColor
+          bgColor: parseResult.bgColor,
+          customCode: parseResult.customCode
         };
       } else {
         currentText += match;
