@@ -44,31 +44,31 @@ const Index = () => {
   };
 
   const updateSegmentStyle = (start: number, end: number) => {
-    setSegments(prevSegments => {
-      const newSegments: TextSegment[] = [];
-      let currentPos = 0;
+    let currentPos = 0;
+    let newSegments: TextSegment[] = [];
+    
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const segmentStart = currentPos;
+      const segmentEnd = currentPos + segment.text.length;
       
-      for (const segment of prevSegments) {
-        const segmentStart = currentPos;
-        const segmentEnd = currentPos + segment.text.length;
-        
-        if (start >= segmentStart && start < segmentEnd) {
-          newSegments.push({
-            text: segment.text,
-            style: {
-              fgColor,
-              bgColor,
-              style
-            }
-          });
-        } else {
-          newSegments.push(segment);
-        }
-        currentPos += segment.text.length;
+      // If this segment is within the selection range
+      if (segmentStart >= start && segmentEnd <= end) {
+        newSegments.push({
+          text: segment.text,
+          style: {
+            fgColor,
+            bgColor,
+            style
+          }
+        });
+      } else {
+        newSegments.push(segment);
       }
-      
-      return newSegments;
-    });
+      currentPos += segment.text.length;
+    }
+    
+    setSegments(newSegments);
   };
 
   return (

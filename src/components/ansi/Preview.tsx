@@ -58,13 +58,43 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
     return styles;
   };
 
-  const handleSelect = (e: React.SyntheticEvent<HTMLDivElement>) => {
+  const handleSelect = () => {
     const selection = window.getSelection();
-    if (selection && onSelect) {
-      const start = selection.anchorOffset;
-      const end = selection.focusOffset;
-      const text = selection.toString();
-      onSelect({ start, end, text });
+    if (!selection || !onSelect || !onStyleUpdate) return;
+
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer.parentElement;
+    if (!container) return;
+
+    let currentPos = 0;
+    let selectionStart = -1;
+    let selectionEnd = -1;
+
+    // Find the selected segment and position
+    const previewDiv = container.closest('[data-preview-container]');
+    if (!previewDiv) return;
+
+    const spans = Array.from(previewDiv.getElementsByTagName('span'));
+    for (let i = 0; i < spans.length; i++) {
+      const span = spans[i];
+      const spanLength = span.textContent?.length || 0;
+
+      if (selection.containsNode(span, true)) {
+        if (selectionStart === -1) {
+          selectionStart = currentPos;
+        }
+        selectionEnd = currentPos + spanLength;
+      }
+      currentPos += spanLength;
+    }
+
+    if (selectionStart !== -1 && selectionEnd !== -1) {
+      onSelect({
+        start: selectionStart,
+        end: selectionEnd,
+        text: selection.toString()
+      });
+      onStyleUpdate(selectionStart, selectionEnd);
     }
   };
 
@@ -73,7 +103,8 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
       <h3 className="text-lg font-semibold">Preview</h3>
       <div
         className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px] p-3 rounded-md border"
-        onSelect={handleSelect}
+        onMouseUp={handleSelect}
+        data-preview-container
       >
         {segments.map((segment, index) => (
           <span key={index} style={getStyleForSegment(segment)}>
