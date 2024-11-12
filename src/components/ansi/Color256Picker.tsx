@@ -1,6 +1,5 @@
 import { ColorPreview } from "./ColorPreview";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 interface Color256PickerProps {
   label: string;
@@ -29,7 +28,6 @@ export function Color256Picker({
           onClick={onModeSwitch}
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          <ChevronLeft className="h-4 w-4 mr-1" />
           Switch to basic colors
         </Button>
       </div>

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { indexToRGB } from "@/lib/ansi-colors";
-import { ChevronRight } from "lucide-react";
 
 interface BasicColorPickerProps {
   label: string;
@@ -42,7 +41,6 @@ export function BasicColorPicker({
           className="text-xs text-muted-foreground hover:text-foreground"
         >
           Switch to 256 colors
-          <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>
       <div className="grid grid-cols-4 gap-[2px]">
