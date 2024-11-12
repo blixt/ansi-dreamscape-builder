@@ -2,10 +2,16 @@ import { TextState, Action } from './text-state/types';
 import { getSegmentAtPosition, updateSegmentsInRange } from './text-state/segment-utils';
 
 export const initialState: TextState = {
-  segments: [{ 
-    text: "Hello World", 
-    style: { fgColor: null, bgColor: null, style: 0 } 
-  }],
+  segments: [
+    { 
+      text: "Hello ", 
+      style: { fgColor: null, bgColor: null, style: 0 } 
+    },
+    {
+      text: "World",
+      style: { fgColor: 1, bgColor: null, style: 1 }
+    }
+  ],
   selection: null,
   activeStyle: 0,
   activeFgColor: null,
