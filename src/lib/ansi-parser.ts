@@ -8,19 +8,19 @@ export interface AnsiParseResult {
   customCode: string;
 }
 
-export const parseAnsiCode = (code: string): AnsiParseResult => {
+export const parseAnsiCode = (code: string, previousResult?: AnsiParseResult): AnsiParseResult => {
   // Remove escape sequence prefix and suffix if present
   code = code.replace(/^\x1b\[/, '').replace(/m$/, '');
   
   const parts = code.split(';').map(Number);
   
   const result: AnsiParseResult = {
-    style: 0,
-    fgColor: null,
-    bgColor: null,
-    fg256: null,
-    bg256: null,
-    use256Color: false,
+    style: previousResult?.style ?? 0,
+    fgColor: previousResult?.fgColor ?? null,
+    bgColor: previousResult?.bgColor ?? null,
+    fg256: previousResult?.fg256 ?? null,
+    bg256: previousResult?.bg256 ?? null,
+    use256Color: previousResult?.use256Color ?? false,
     customCode: '',
   };
 
@@ -28,8 +28,17 @@ export const parseAnsiCode = (code: string): AnsiParseResult => {
   while (i < parts.length) {
     const part = parts[i];
     
+    // Reset
+    if (part === 0) {
+      result.style = 0;
+      result.fgColor = null;
+      result.bgColor = null;
+      result.fg256 = null;
+      result.bg256 = null;
+      result.use256Color = false;
+    }
     // Style
-    if (part >= 0 && part <= 9) {
+    else if (part >= 1 && part <= 9) {
       result.style = part;
     }
     // 256 color
@@ -47,7 +56,7 @@ export const parseAnsiCode = (code: string): AnsiParseResult => {
     }
     // Basic colors
     else if (part >= 30 && part <= 37) {
-      result.fgColor = part;
+      result.fgColor = part - 30;
       result.use256Color = false;
     }
     else if (part >= 40 && part <= 47) {

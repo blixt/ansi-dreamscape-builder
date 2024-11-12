@@ -1,8 +1,6 @@
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { TextSegment } from "@/lib/types";
+import React from 'react';
+import { TextSegment } from '@/lib/types';
+import { parseAnsiCode } from '@/lib/ansi-parser';
 
 interface AnsiInputProps {
   segments: TextSegment[];
@@ -10,61 +8,89 @@ interface AnsiInputProps {
 }
 
 export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
-  const { toast } = useToast();
+  const handleAnsiInput = (input: string) => {
+    const newSegments: TextSegment[] = [];
+    const regex = /\x1b\[[0-9;]*m|[^\x1b]+/g;
+    let matches = input.match(regex);
+    
+    if (!matches) {
+      setSegments([{
+        text: input,
+        style: { fgColor: null, bgColor: null, style: 0 }
+      }]);
+      return;
+    }
 
-  const segmentsToAnsiString = (segments: TextSegment[]): string => {
-    return segments.map(segment => {
-      let code = '';
-      if (segment.style.style !== 0 || segment.style.fgColor !== null || 
-          segment.style.bgColor !== null) {
-        const parts = [];
-        
-        if (segment.style.style !== 0) parts.push(segment.style.style);
-        
-        if (segment.style.fgColor !== null) {
-          if (segment.style.fgColor >= 16) {
-            parts.push(`38;5;${segment.style.fgColor}`);
-          } else {
-            parts.push(segment.style.fgColor + 30);
-          }
+    let currentStyle = {
+      style: 0,
+      fgColor: null as number | null,
+      bgColor: null as number | null
+    };
+
+    let currentText = '';
+    
+    for (const match of matches) {
+      if (match.startsWith('\x1b[')) {
+        if (currentText) {
+          newSegments.push({
+            text: currentText,
+            style: { ...currentStyle }
+          });
+          currentText = '';
         }
         
-        if (segment.style.bgColor !== null) {
-          if (segment.style.bgColor >= 16) {
-            parts.push(`48;5;${segment.style.bgColor}`);
-          } else {
-            parts.push(segment.style.bgColor + 40);
-          }
-        }
+        const parseResult = parseAnsiCode(match, {
+          style: currentStyle.style,
+          fgColor: currentStyle.fgColor,
+          bgColor: currentStyle.bgColor,
+          fg256: null,
+          bg256: null,
+          use256Color: false,
+          customCode: ''
+        });
         
-        code = `\\e[${parts.join(';')}m`;
+        currentStyle = {
+          style: parseResult.style,
+          fgColor: parseResult.fgColor,
+          bgColor: parseResult.bgColor
+        };
+      } else {
+        currentText += match;
       }
-      return code + segment.text;
-    }).join('') + '\\e[0m';
-  };
-
-  const copyToClipboard = () => {
-    const ansiString = segmentsToAnsiString(segments);
-    navigator.clipboard.writeText(ansiString);
-    toast({
-      title: "Copied to clipboard",
-      description: "The ANSI code has been copied to your clipboard.",
-    });
+    }
+    
+    if (currentText) {
+      newSegments.push({
+        text: currentText,
+        style: { ...currentStyle }
+      });
+    }
+    
+    setSegments(newSegments);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Raw</h3>
-        <Button variant="ghost" size="icon" onClick={copyToClipboard}>
-          <Copy className="h-4 w-4" />
-        </Button>
-      </div>
-      <Textarea
-        value={segmentsToAnsiString(segments)}
-        readOnly
-        className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px]"
+    <div>
+      <textarea
+        onChange={(e) => handleAnsiInput(e.target.value)}
+        className="w-full h-40 p-2 border rounded"
+        placeholder="Enter ANSI codes here"
       />
+      <div className="mt-4">
+        {segments.map((segment, index) => (
+          <span key={index} style={{
+            color: segment.style.fgColor !== null ? (segment.style.fgColor >= 16 ? `rgb(${indexToRGB(segment.style.fgColor)})` : basicColorMap[segment.style.fgColor]) : undefined,
+            backgroundColor: segment.style.bgColor !== null ? (segment.style.bgColor >= 16 ? `rgb(${indexToRGB(segment.style.bgColor)})` : basicColorMap[segment.style.bgColor]) : undefined,
+            fontWeight: segment.style.style === 1 ? 'bold' : undefined,
+            opacity: segment.style.style === 2 ? 0.5 : undefined,
+            fontStyle: segment.style.style === 3 ? 'italic' : undefined,
+            textDecoration: segment.style.style === 4 ? 'underline' : undefined,
+            animation: segment.style.style === 5 ? 'blink 1s step-end infinite' : undefined,
+          }}>
+            {segment.text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
