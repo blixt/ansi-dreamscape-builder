@@ -7,10 +7,15 @@ interface PreviewProps {
   onSelect?: (selection: { start: number, end: number }) => void;
 }
 
+interface TextSegment {
+  text: string;
+  style: React.CSSProperties;
+}
+
 export function Preview({ ansiCode, onSelect }: PreviewProps) {
-  const getPreviewStyle = () => {
-    const parsed = parseAnsiCode(ansiCode);
-    const styles: Record<string, any> = {};
+  const getStyleForCode = (code: string): React.CSSProperties => {
+    const parsed = parseAnsiCode(code);
+    const styles: React.CSSProperties = {};
     
     if (parsed.use256Color) {
       if (parsed.fg256 !== null) styles.color = indexToRGB(parsed.fg256);
@@ -43,32 +48,66 @@ export function Preview({ ansiCode, onSelect }: PreviewProps) {
     return styles;
   };
 
-  const handleSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
-    const target = e.target as HTMLTextAreaElement;
-    if (onSelect) {
-      onSelect({
-        start: target.selectionStart,
-        end: target.selectionEnd
+  const parseTextIntoSegments = (text: string): TextSegment[] => {
+    const segments: TextSegment[] = [];
+    const regex = /\x1b\[[0-9;]*m|\\\e\[[0-9;]*m/g;
+    let currentStyle: React.CSSProperties = {};
+    let lastIndex = 0;
+    let match;
+
+    // Convert \e to actual escape character for processing
+    text = text.replace(/\\e/g, '\x1b');
+
+    while ((match = regex.exec(text)) !== null) {
+      // Add text segment before the ANSI code if it exists
+      if (match.index > lastIndex) {
+        segments.push({
+          text: text.substring(lastIndex, match.index),
+          style: { ...currentStyle }
+        });
+      }
+
+      // Update current style based on the ANSI code
+      currentStyle = getStyleForCode(match[0]);
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text with current style
+    if (lastIndex < text.length) {
+      segments.push({
+        text: text.substring(lastIndex),
+        style: { ...currentStyle }
       });
+    }
+
+    return segments;
+  };
+
+  const handleSelect = (e: React.SyntheticEvent<HTMLDivElement>) => {
+    const selection = window.getSelection();
+    if (selection && onSelect) {
+      // Calculate selection positions based on text content
+      const start = selection.anchorOffset;
+      const end = selection.focusOffset;
+      onSelect({ start, end });
     }
   };
 
-  // Process the ANSI code to get the actual text content
-  const processAnsiText = (text: string): string => {
-    // Remove all ANSI escape sequences
-    return text.replace(/\x1b\[[0-9;]*m|\\\e\[[0-9;]*m/g, '');
-  };
+  const segments = parseTextIntoSegments(ansiCode);
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Preview</h3>
-      <Textarea
-        value={processAnsiText(ansiCode)}
-        readOnly
+      <div
+        className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px] p-3 rounded-md border"
         onSelect={handleSelect}
-        className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px]"
-        style={getPreviewStyle()}
-      />
+      >
+        {segments.map((segment, index) => (
+          <span key={index} style={segment.style}>
+            {segment.text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
