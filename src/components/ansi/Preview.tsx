@@ -11,49 +11,55 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
   const getStyleForSegment = (segment: TextSegment): React.CSSProperties => {
     const styles: React.CSSProperties = {};
     
-    if (segment.style.fgColor !== null) {
-      if (segment.style.fgColor >= 16) {
-        styles.color = indexToRGB(segment.style.fgColor);
-      } else {
-        const basicColorMap = {
-          0: '#000000', 1: '#ff0000', 2: '#00ff00',
-          3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
-          6: '#00ffff', 7: '#ffffff', 8: '#808080',
-          9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
-          12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
-          15: '#ffffff'
-        };
-        styles.color = basicColorMap[segment.style.fgColor as keyof typeof basicColorMap];
+    // Only apply colors if we're not in "Normal" style (0) mode
+    if (segment.style.style !== 0) {
+      if (segment.style.fgColor !== null) {
+        if (segment.style.fgColor >= 16) {
+          styles.color = indexToRGB(segment.style.fgColor);
+        } else {
+          const basicColorMap = {
+            0: '#000000', 1: '#ff0000', 2: '#00ff00',
+            3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
+            6: '#00ffff', 7: '#ffffff', 8: '#808080',
+            9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
+            12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
+            15: '#ffffff'
+          };
+          styles.color = basicColorMap[segment.style.fgColor as keyof typeof basicColorMap];
+        }
+      }
+      
+      if (segment.style.bgColor !== null) {
+        if (segment.style.bgColor >= 16) {
+          styles.backgroundColor = indexToRGB(segment.style.bgColor);
+        } else {
+          const basicColorMap = {
+            0: '#000000', 1: '#ff0000', 2: '#00ff00',
+            3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
+            6: '#00ffff', 7: '#ffffff', 8: '#808080',
+            9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
+            12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
+            15: '#ffffff'
+          };
+          styles.backgroundColor = basicColorMap[segment.style.bgColor as keyof typeof basicColorMap];
+        }
       }
     }
     
-    if (segment.style.bgColor !== null) {
-      if (segment.style.bgColor >= 16) {
-        styles.backgroundColor = indexToRGB(segment.style.bgColor);
-      } else {
-        const basicColorMap = {
-          0: '#000000', 1: '#ff0000', 2: '#00ff00',
-          3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
-          6: '#00ffff', 7: '#ffffff', 8: '#808080',
-          9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
-          12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
-          15: '#ffffff'
-        };
-        styles.backgroundColor = basicColorMap[segment.style.bgColor as keyof typeof basicColorMap];
+    // Apply text styles only if not in "Normal" mode
+    if (segment.style.style !== 0) {
+      if (segment.style.style === 1) styles.fontWeight = 'bold';
+      if (segment.style.style === 2) styles.opacity = 0.5;
+      if (segment.style.style === 3) styles.fontStyle = 'italic';
+      if (segment.style.style === 4) styles.textDecoration = 'underline';
+      if (segment.style.style === 5) styles.animation = 'blink 1s step-end infinite';
+      if (segment.style.style === 7) {
+        const temp = styles.color;
+        styles.color = styles.backgroundColor;
+        styles.backgroundColor = temp;
       }
+      if (segment.style.style === 9) styles.textDecoration = 'line-through';
     }
-    
-    if (segment.style.style === 1) styles.fontWeight = 'bold';
-    if (segment.style.style === 2) styles.opacity = 0.5;
-    if (segment.style.style === 3) styles.fontStyle = 'italic';
-    if (segment.style.style === 4) styles.textDecoration = 'underline';
-    if (segment.style.style === 5) styles.animation = 'blink 1s step-end infinite';
-    if (segment.style.style === 7) {
-      const temp = styles.color;
-      styles.color = styles.backgroundColor;
-      styles.backgroundColor = temp;
-    }
-    if (segment.style.style === 9) styles.textDecoration = 'line-through';
     
     return styles;
   };
