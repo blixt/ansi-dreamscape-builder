@@ -67,42 +67,43 @@ const Index = () => {
       const segmentStart = currentPos;
       const segmentEnd = currentPos + segment.text.length;
       
-      // Case 1: Selection completely outside this segment
+      // Selection completely outside this segment
       if (end <= segmentStart || start >= segmentEnd) {
         newSegments.push(segment);
       }
-      // Case 2: Selection affects this segment
+      // Selection overlaps with this segment
       else {
-        // If selection starts after segment start, create a prefix segment
+        // Handle text before selection in this segment
         if (start > segmentStart) {
-          const prefixLength = start - segmentStart;
           newSegments.push({
-            text: segment.text.substring(0, prefixLength),
+            text: segment.text.substring(0, start - segmentStart),
             style: { ...segment.style }
           });
         }
 
-        // Create the styled segment
+        // Handle selected text in this segment
         const selectionStartInSegment = Math.max(0, start - segmentStart);
         const selectionEndInSegment = Math.min(segment.text.length, end - segmentStart);
-        newSegments.push({
-          text: segment.text.substring(selectionStartInSegment, selectionEndInSegment),
-          style: {
-            fgColor,
-            bgColor,
-            style
-          }
-        });
+        const selectedText = segment.text.substring(selectionStartInSegment, selectionEndInSegment);
+        
+        if (selectedText) {
+          newSegments.push({
+            text: selectedText,
+            style: {
+              fgColor,
+              bgColor,
+              style
+            }
+          });
+        }
 
-        // If selection ends before segment end, create a suffix segment
-        if (end < segmentEnd) {
-          const suffixText = segment.text.substring(selectionEndInSegment);
-          if (suffixText) {  // Only create suffix segment if there's text
-            newSegments.push({
-              text: suffixText,
-              style: { ...segment.style }
-            });
-          }
+        // Handle text after selection in this segment
+        const remainingText = segment.text.substring(selectionEndInSegment);
+        if (remainingText) {
+          newSegments.push({
+            text: remainingText,
+            style: { ...segment.style }
+          });
         }
       }
       
