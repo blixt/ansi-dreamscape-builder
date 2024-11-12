@@ -53,11 +53,17 @@ export function Preview({ ansiCode, onSelect }: PreviewProps) {
     }
   };
 
+  // Process the ANSI code to get the actual text content
+  const processAnsiText = (text: string): string => {
+    // Remove all ANSI escape sequences
+    return text.replace(/\x1b\[[0-9;]*m|\\\e\[[0-9;]*m/g, '');
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Preview</h3>
       <Textarea
-        value="The quick brown fox jumps over the lazy dog"
+        value={processAnsiText(ansiCode)}
         readOnly
         onSelect={handleSelect}
         className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px]"
