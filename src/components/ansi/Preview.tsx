@@ -7,7 +7,7 @@ interface PreviewProps {
   onStyleUpdate?: (start: number, end: number) => void;
 }
 
-export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
+export function Preview({ segments, onSelect }: PreviewProps) {
   const getStyleForSegment = (segment: TextSegment): React.CSSProperties => {
     const styles: React.CSSProperties = {};
     
@@ -60,7 +60,7 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
 
   const handleSelect = () => {
     const selection = window.getSelection();
-    if (!selection || !onSelect || !onStyleUpdate) return;
+    if (!selection || !onSelect) return;
 
     const range = selection.getRangeAt(0);
     const container = range.commonAncestorContainer.parentElement;
@@ -70,7 +70,6 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
     let selectionStart = -1;
     let selectionEnd = -1;
 
-    // Find the selected segment and position
     const previewDiv = container.closest('[data-preview-container]');
     if (!previewDiv) return;
 
@@ -94,7 +93,6 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
         end: selectionEnd,
         text: selection.toString()
       });
-      onStyleUpdate(selectionStart, selectionEnd);
     }
   };
 

@@ -52,7 +52,6 @@ const Index = () => {
       const segmentStart = currentPos;
       const segmentEnd = currentPos + segment.text.length;
       
-      // If this segment is within the selection range
       if (segmentStart >= start && segmentEnd <= end) {
         newSegments.push({
           text: segment.text,
