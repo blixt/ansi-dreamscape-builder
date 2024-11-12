@@ -60,34 +60,22 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
 
   const handleSelect = () => {
     const selection = window.getSelection();
-    console.log('Selection event triggered:', selection ? 'has selection' : 'no selection');
     
     if (!selection || selection.isCollapsed) {
-      console.log('Selection is null or collapsed');
       onSelect?.(null);
       return;
     }
 
     const range = selection.getRangeAt(0);
-    console.log('Selection range:', {
-      startContainer: range.startContainer.textContent,
-      endContainer: range.endContainer.textContent,
-      startOffset: range.startOffset,
-      endOffset: range.endOffset,
-      commonAncestor: range.commonAncestorContainer.textContent
-    });
 
-    // Find the preview container by traversing up from either the start or end container
+    // Find the preview container
     const previewDiv = range.startContainer.parentElement?.closest('[data-preview-container]') ||
                       range.endContainer.parentElement?.closest('[data-preview-container]');
     
     if (!previewDiv) {
-      console.log('Preview container not found, trying alternative method');
-      // If still not found, try finding it from the common ancestor
       const alternativePreviewDiv = range.commonAncestorContainer.parentElement?.closest('[data-preview-container]') ||
                                   (range.commonAncestorContainer as Element)?.closest('[data-preview-container]');
       if (!alternativePreviewDiv) {
-        console.log('Preview container still not found after alternative method');
         return;
       }
     }
@@ -102,9 +90,8 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
     while (node = walker.nextNode()) {
       textNodes.push(node);
     }
-    console.log('Found text nodes:', textNodes.map(n => n.textContent));
 
-    // Calculate the absolute start position
+    // Calculate absolute positions
     let absoluteStart = 0;
     for (let i = 0; i < textNodes.length; i++) {
       if (textNodes[i] === range.startContainer) {
@@ -114,7 +101,6 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
       absoluteStart += textNodes[i].textContent?.length || 0;
     }
 
-    // Calculate the absolute end position
     let absoluteEnd = 0;
     for (let i = 0; i < textNodes.length; i++) {
       if (textNodes[i] === range.endContainer) {
@@ -124,13 +110,6 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
       absoluteEnd += textNodes[i].textContent?.length || 0;
     }
 
-    console.log('Calculated positions:', {
-      absoluteStart,
-      absoluteEnd,
-      selectedText: selection.toString(),
-      totalTextLength: textNodes.reduce((acc, node) => acc + (node.textContent?.length || 0), 0)
-    });
-
     if (absoluteStart !== absoluteEnd) {
       onSelect?.({
         start: absoluteStart,
@@ -138,7 +117,6 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
         text: selection.toString()
       });
     } else {
-      console.log('Start and end positions are the same, clearing selection');
       onSelect?.(null);
     }
   };
@@ -149,7 +127,6 @@ export function Preview({ segments, onSelect, onStyleUpdate }: PreviewProps) {
       <div
         className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px] p-3 rounded-md border"
         onMouseUp={handleSelect}
-        onMouseDown={handleSelect}
         data-preview-container
       >
         {segments.map((segment, index) => (
