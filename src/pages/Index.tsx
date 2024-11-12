@@ -31,27 +31,10 @@ const Index = () => {
   const handleSelection = (selection: { start: number, end: number, text: string } | null) => {
     if (!selection) {
       setCurrentSelection(null);
-      setStyle(0);
-      setFgColor(null);
-      setBgColor(null);
       return;
     }
     
     setCurrentSelection({ start: selection.start, end: selection.end });
-    
-    let currentPos = 0;
-    for (const segment of segments) {
-      const segmentStart = currentPos;
-      const segmentEnd = currentPos + segment.text.length;
-      
-      if (selection.start >= segmentStart && selection.start < segmentEnd) {
-        setStyle(segment.style.style);
-        setFgColor(segment.style.fgColor);
-        setBgColor(segment.style.bgColor);
-        break;
-      }
-      currentPos += segment.text.length;
-    }
   };
 
   useEffect(() => {
