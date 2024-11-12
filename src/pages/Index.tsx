@@ -73,15 +73,20 @@ const Index = () => {
       }
       // Selection overlaps with this segment
       else {
-        // Handle text before selection in this segment
+        // Split the segment into parts based on selection
+        
+        // Part 1: Text before selection in this segment
         if (start > segmentStart) {
-          newSegments.push({
-            text: segment.text.substring(0, start - segmentStart),
-            style: { ...segment.style }
-          });
+          const beforeText = segment.text.substring(0, start - segmentStart);
+          if (beforeText) {
+            newSegments.push({
+              text: beforeText,
+              style: { ...segment.style }
+            });
+          }
         }
 
-        // Handle selected text in this segment
+        // Part 2: Selected text in this segment
         const selectionStartInSegment = Math.max(0, start - segmentStart);
         const selectionEndInSegment = Math.min(segment.text.length, end - segmentStart);
         const selectedText = segment.text.substring(selectionStartInSegment, selectionEndInSegment);
@@ -97,11 +102,11 @@ const Index = () => {
           });
         }
 
-        // Handle text after selection in this segment
-        const remainingText = segment.text.substring(selectionEndInSegment);
-        if (remainingText) {
+        // Part 3: Text after selection in this segment
+        const afterText = segment.text.substring(selectionEndInSegment);
+        if (afterText) {
           newSegments.push({
-            text: remainingText,
+            text: afterText,
             style: { ...segment.style }
           });
         }
@@ -110,6 +115,8 @@ const Index = () => {
       currentPos += segment.text.length;
     }
     
+    // Filter out any empty segments and update state
+    newSegments = newSegments.filter(segment => segment.text.length > 0);
     setSegments(newSegments);
   };
 
