@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useTheme } from "next-themes";
-import { parseAnsiCode } from '@/lib/ansi-parser';
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
@@ -14,13 +13,10 @@ const Index = () => {
   const [style, setStyle] = useState(0);
   const [fgColor, setFgColor] = useState<number | null>(null);
   const [bgColor, setBgColor] = useState<number | null>(null);
-  const [fg256, setFg256] = useState(1);
-  const [bg256, setBg256] = useState(1);
-  const [use256Color, setUse256Color] = useState(false);
   const [segments, setSegments] = useState<TextSegment[]>([
-    { text: "Hello ", style: { fgColor: null, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 0 } },
-    { text: "World", style: { fgColor: 31, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 1 } },
-    { text: "", style: { fgColor: null, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 0 } }
+    { text: "Hello ", style: { fgColor: null, bgColor: null, style: 0 } },
+    { text: "World", style: { fgColor: 1, bgColor: null, style: 1 } },
+    { text: "", style: { fgColor: null, bgColor: null, style: 0 } }
   ]);
 
   useEffect(() => {
@@ -32,7 +28,6 @@ const Index = () => {
   const handleSelection = ({ start, end, text }: { start: number, end: number, text: string }) => {
     if (start === end) return;
     
-    // Find the segment containing the selection
     let currentPos = 0;
     for (const segment of segments) {
       const segmentStart = currentPos;
@@ -42,11 +37,6 @@ const Index = () => {
         setStyle(segment.style.style);
         setFgColor(segment.style.fgColor);
         setBgColor(segment.style.bgColor);
-        setUse256Color(segment.style.use256Color);
-        if (segment.style.use256Color) {
-          if (segment.style.fg256 !== null) setFg256(segment.style.fg256);
-          if (segment.style.bg256 !== null) setBg256(segment.style.bg256);
-        }
         break;
       }
       currentPos += segment.text.length;
@@ -63,15 +53,11 @@ const Index = () => {
         const segmentEnd = currentPos + segment.text.length;
         
         if (start >= segmentStart && start < segmentEnd) {
-          // Update the style of this segment
           newSegments.push({
             text: segment.text,
             style: {
               fgColor,
               bgColor,
-              fg256: use256Color ? fg256 : null,
-              bg256: use256Color ? bg256 : null,
-              use256Color,
               style
             }
           });
@@ -98,12 +84,10 @@ const Index = () => {
             <div className="space-y-6">
               <StyleSelector style={style} setStyle={setStyle} />
               <ColorPicker
-                use256Color={use256Color}
-                setUse256Color={setUse256Color}
-                fg256={fg256}
-                setFg256={setFg256}
-                bg256={bg256}
-                setBg256={setBg256}
+                fg={fgColor ?? 0}
+                setFg={setFgColor}
+                bg={bgColor ?? 0}
+                setBg={setBgColor}
                 fgColor={fgColor}
                 setFgColor={setFgColor}
                 bgColor={bgColor}

@@ -8,7 +8,7 @@ describe('Preview', () => {
   it('renders with basic foreground color', () => {
     const segments: TextSegment[] = [{
       text: 'The quick brown fox jumps over the lazy dog',
-      style: { fgColor: 31, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 0 }
+      style: { fgColor: 1, bgColor: null, style: 0 }
     }];
     render(<Preview segments={segments} />);
     const previewText = screen.getByText('The quick brown fox jumps over the lazy dog');
@@ -18,7 +18,7 @@ describe('Preview', () => {
   it('renders with basic background color', () => {
     const segments: TextSegment[] = [{
       text: 'The quick brown fox jumps over the lazy dog',
-      style: { fgColor: null, bgColor: 1, fg256: null, bg256: null, use256Color: false, style: 0 }
+      style: { fgColor: null, bgColor: 1, style: 0 }
     }];
     render(<Preview segments={segments} />);
     const previewText = screen.getByText('The quick brown fox jumps over the lazy dog');
@@ -28,7 +28,7 @@ describe('Preview', () => {
   it('renders with 256 foreground color', () => {
     const segments: TextSegment[] = [{
       text: 'The quick brown fox jumps over the lazy dog',
-      style: { fgColor: null, bgColor: null, fg256: 196, bg256: null, use256Color: true, style: 0 }
+      style: { fgColor: 196, bgColor: null, style: 0 }
     }];
     render(<Preview segments={segments} />);
     const previewText = screen.getByText('The quick brown fox jumps over the lazy dog');
@@ -38,7 +38,7 @@ describe('Preview', () => {
   it('renders with 256 background color', () => {
     const segments: TextSegment[] = [{
       text: 'The quick brown fox jumps over the lazy dog',
-      style: { fgColor: null, bgColor: null, fg256: null, bg256: 196, use256Color: true, style: 0 }
+      style: { fgColor: null, bgColor: 196, style: 0 }
     }];
     render(<Preview segments={segments} />);
     const previewText = screen.getByText('The quick brown fox jumps over the lazy dog');
@@ -48,7 +48,7 @@ describe('Preview', () => {
   it('renders with style attributes', () => {
     const segments: TextSegment[] = [{
       text: 'The quick brown fox jumps over the lazy dog',
-      style: { fgColor: null, bgColor: null, fg256: null, bg256: null, use256Color: false, style: 1 }
+      style: { fgColor: null, bgColor: null, style: 1 }
     }];
     render(<Preview segments={segments} />);
     const previewText = screen.getByText('The quick brown fox jumps over the lazy dog');
@@ -58,7 +58,7 @@ describe('Preview', () => {
   it('handles reverse video mode', () => {
     const segments: TextSegment[] = [{
       text: 'The quick brown fox jumps over the lazy dog',
-      style: { fgColor: 31, bgColor: 2, fg256: null, bg256: null, use256Color: false, style: 7 }
+      style: { fgColor: 1, bgColor: 2, style: 7 }
     }];
     render(<Preview segments={segments} />);
     const previewText = screen.getByText('The quick brown fox jumps over the lazy dog');
