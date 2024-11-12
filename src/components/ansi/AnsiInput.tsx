@@ -20,6 +20,9 @@ interface AnsiInputProps {
 
 export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
   const handleAnsiInput = (input: string) => {
+    // Convert literal escape sequences back to actual characters
+    input = input.replace(/\\e/g, '\x1b').replace(/\\\\/g, '\\');
+    
     const newSegments: TextSegment[] = [];
     const regex = /\x1b\[[0-9;]*m|[^\x1b]+/g;
     let matches = input.match(regex);
@@ -86,12 +89,14 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
         prefix = `\x1b[${codes.join(';')}m`;
       }
       return prefix + segment.text;
-    }).join('').replace(/\x1b/g, '\\e');
+    }).join('')
+    .replace(/\\/g, '\\\\')  // First escape backslashes
+    .replace(/\x1b/g, '\\e'); // Then escape ANSI escape sequences
   };
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-medium">Raw</h3>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Raw</h3>
       <textarea
         value={getRawAnsi()}
         onChange={(e) => handleAnsiInput(e.target.value)}
