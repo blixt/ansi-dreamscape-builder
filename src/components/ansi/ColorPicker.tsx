@@ -40,7 +40,7 @@ export function ColorPicker({
     <div className="space-y-6">
       {showFg256Colors ? (
         <Color256Picker
-          label="Foreground Color (0-255)"
+          label="Foreground Color"
           value={fg}
           setValue={setFg}
           colorValue={fgColor}
@@ -58,7 +58,7 @@ export function ColorPicker({
       )}
       {showBg256Colors ? (
         <Color256Picker
-          label="Background Color (0-255)"
+          label="Background Color"
           value={bg}
           setValue={setBg}
           colorValue={bgColor}
