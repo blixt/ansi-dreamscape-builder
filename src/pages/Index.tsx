@@ -9,6 +9,25 @@ import { AnsiInput } from '@/components/ansi/AnsiInput';
 import { TextSegment } from '@/lib/types';
 import { useToast } from '@/components/ui/use-toast';
 
+/*
+ * DON'T DELETE THIS COMMENT - Style Update Cases
+ * 
+ * 1. Color Updates:
+ *    - fgColor/bgColor is a number (0-255) -> explicitly set that color
+ *    - fgColor/bgColor is null -> no change to color
+ * 
+ * 2. Style Updates:
+ *    - style is 0 -> explicitly reset to normal (remove bold, italic, etc.)
+ *    - style is 1-9 -> explicitly set that style
+ *    - style is null -> no change to style
+ * 
+ * 3. Selection Handling:
+ *    - No selection -> no changes
+ *    - Partial segment -> split into multiple segments
+ *    - Multiple segments -> handle each segment
+ *    - Post-process -> merge adjacent segments with identical styles
+ */
+
 const Index = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
@@ -36,12 +55,6 @@ const Index = () => {
     
     setCurrentSelection({ start: selection.start, end: selection.end });
   };
-
-  useEffect(() => {
-    if (currentSelection) {
-      updateSegmentStyle(currentSelection.start, currentSelection.end);
-    }
-  }, [fgColor, bgColor, style]);
 
   const optimizeSegments = (segments: TextSegment[]): TextSegment[] => {
     return segments.reduce((acc: TextSegment[], curr: TextSegment) => {
@@ -98,12 +111,11 @@ const Index = () => {
         
         if (selectedText) {
           const newStyle = {
-            // If style is explicitly 0 (Normal), reset formatting but keep colors
-            // If style is undefined (color change), keep existing style
-            style: style === 0 ? 0 : (style === undefined ? segment.style.style : style),
-            // Only update colors if they were explicitly changed
-            fgColor: fgColor !== undefined ? fgColor : segment.style.fgColor,
-            bgColor: bgColor !== undefined ? bgColor : segment.style.bgColor
+            // Only update style if a new style is explicitly set
+            style: style === null ? segment.style.style : style,
+            // Only update colors if new colors are explicitly set
+            fgColor: fgColor === null ? segment.style.fgColor : fgColor,
+            bgColor: bgColor === null ? segment.style.bgColor : bgColor
           };
 
           newSegments.push({
@@ -129,6 +141,12 @@ const Index = () => {
     newSegments = optimizeSegments(newSegments.filter(segment => segment.text.length > 0));
     setSegments(newSegments);
   };
+
+  useEffect(() => {
+    if (currentSelection) {
+      updateSegmentStyle(currentSelection.start, currentSelection.end);
+    }
+  }, [fgColor, bgColor, style]);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
