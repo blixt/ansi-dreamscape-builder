@@ -86,11 +86,12 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
         prefix = `\x1b[${codes.join(';')}m`;
       }
       return prefix + segment.text;
-    }).join('');
+    }).join('').replace(/\x1b/g, '\\e');
   };
 
   return (
-    <div>
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium">Raw</h3>
       <textarea
         value={getRawAnsi()}
         onChange={(e) => handleAnsiInput(e.target.value)}
