@@ -23,53 +23,56 @@ export function ColorPicker({
   bgColor,
   setBgColor,
 }: ColorPickerProps) {
-  const [show256Colors, setShow256Colors] = useState(false);
+  const [showFg256Colors, setShowFg256Colors] = useState(false);
+  const [showBg256Colors, setShowBg256Colors] = useState(false);
 
   // Switch to 256-color mode if a color > 15 is selected
   useEffect(() => {
-    if ((fgColor !== null && fgColor > 15) || (bgColor !== null && bgColor > 15)) {
-      setShow256Colors(true);
+    if (fgColor !== null && fgColor > 15) {
+      setShowFg256Colors(true);
+    }
+    if (bgColor !== null && bgColor > 15) {
+      setShowBg256Colors(true);
     }
   }, [fgColor, bgColor]);
 
   return (
     <div className="space-y-6">
-      {show256Colors ? (
-        <>
-          <Color256Picker
-            label="Foreground Color (0-255)"
-            value={fg}
-            setValue={setFg}
-            colorValue={fgColor}
-            setColorValue={setFgColor}
-            onModeSwitch={() => setShow256Colors(false)}
-          />
-          <Color256Picker
-            label="Background Color (0-255)"
-            value={bg}
-            setValue={setBg}
-            colorValue={bgColor}
-            setColorValue={setBgColor}
-            onModeSwitch={() => setShow256Colors(false)}
-          />
-        </>
+      {showFg256Colors ? (
+        <Color256Picker
+          label="Foreground Color (0-255)"
+          value={fg}
+          setValue={setFg}
+          colorValue={fgColor}
+          setColorValue={setFgColor}
+          onModeSwitch={() => setShowFg256Colors(false)}
+        />
       ) : (
-        <>
-          <BasicColorPicker
-            label="Foreground Color"
-            selectedColor={fgColor}
-            setSelectedColor={setFgColor}
-            isForeground={true}
-            onModeSwitch={() => setShow256Colors(true)}
-          />
-          <BasicColorPicker
-            label="Background Color"
-            selectedColor={bgColor}
-            setSelectedColor={setBgColor}
-            isForeground={false}
-            onModeSwitch={() => setShow256Colors(true)}
-          />
-        </>
+        <BasicColorPicker
+          label="Foreground Color"
+          selectedColor={fgColor}
+          setSelectedColor={setFgColor}
+          isForeground={true}
+          onModeSwitch={() => setShowFg256Colors(true)}
+        />
+      )}
+      {showBg256Colors ? (
+        <Color256Picker
+          label="Background Color (0-255)"
+          value={bg}
+          setValue={setBg}
+          colorValue={bgColor}
+          setColorValue={setBgColor}
+          onModeSwitch={() => setShowBg256Colors(false)}
+        />
+      ) : (
+        <BasicColorPicker
+          label="Background Color"
+          selectedColor={bgColor}
+          setSelectedColor={setBgColor}
+          isForeground={false}
+          onModeSwitch={() => setShowBg256Colors(true)}
+        />
       )}
     </div>
   );
