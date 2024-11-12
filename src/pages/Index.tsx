@@ -17,6 +17,7 @@ const Index = () => {
   const [bg256, setBg256] = useState(1);
   const [use256Color, setUse256Color] = useState(false);
   const [customCode, setCustomCode] = useState('');
+  const [ansiCode, setAnsiCode] = useState('Hello \\e[1;31mWorld\\e[0m');
 
   useEffect(() => {
     const isDark = theme === 'dark' || 
@@ -24,42 +25,21 @@ const Index = () => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [theme]);
 
-  const getAnsiCode = () => {
-    const parts = [];
+  const handleSelection = ({ start, end }: { start: number, end: number }) => {
+    if (start === end) return;
     
-    if (style !== 0) {
-      parts.push(style);
-    }
+    // Get the ANSI code at the start of selection
+    const code = ansiCode.substring(0, start);
+    const parsed = parseAnsiCode(code);
     
-    if (use256Color) {
-      if (fgColor !== null) parts.push(`38;5;${fg256}`);
-      if (bgColor !== null) parts.push(`48;5;${bg256}`);
-    } else {
-      if (fgColor !== null) parts.push(fgColor);
-      if (bgColor !== null) parts.push(bgColor + 40); // Fix: Changed from +10 to +40 for background colors
-    }
-
-    if (customCode) {
-      parts.push(customCode);
-    }
-    
-    return parts.length ? `\x1b[${parts.join(';')}m` : '';
-  };
-
-  const handleAnsiInput = (value: string) => {
-    try {
-      // Remove escape sequence prefix and 'm' suffix before parsing
-      const cleanCode = value.replace(/^\x1b\[/, '').replace(/\\e\[/, '').replace(/m$/, '');
-      const parsed = parseAnsiCode(cleanCode);
-      setStyle(parsed.style);
-      setFgColor(parsed.fgColor);
-      setBgColor(parsed.bgColor);
-      setFg256(parsed.fg256 ?? 1);
-      setBg256(parsed.bg256 ?? 1);
-      setUse256Color(parsed.use256Color);
-      setCustomCode(parsed.customCode);
-    } catch (error) {
-      console.error('Failed to parse ANSI code:', error);
+    // Update the UI state based on the parsed code
+    setStyle(parsed.style);
+    setFgColor(parsed.fgColor);
+    setBgColor(parsed.bgColor);
+    setUse256Color(parsed.use256Color);
+    if (parsed.use256Color) {
+      if (parsed.fg256 !== null) setFg256(parsed.fg256);
+      if (parsed.bg256 !== null) setBg256(parsed.bg256);
     }
   };
 
@@ -91,10 +71,13 @@ const Index = () => {
 
             <div className="space-y-6">
               <AnsiInput 
-                value={getAnsiCode()} 
-                onChange={handleAnsiInput} 
+                value={ansiCode} 
+                onChange={setAnsiCode} 
               />
-              <Preview ansiCode={getAnsiCode()} />
+              <Preview 
+                ansiCode={ansiCode}
+                onSelect={handleSelection}
+              />
             </div>
           </div>
         </div>

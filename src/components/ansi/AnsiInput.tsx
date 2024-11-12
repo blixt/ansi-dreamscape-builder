@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -33,15 +33,15 @@ export function AnsiInput({ value, onChange }: AnsiInputProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">ANSI Code</h3>
+        <h3 className="text-lg font-semibold">Raw</h3>
         <Button variant="ghost" size="icon" onClick={copyToClipboard}>
           <Copy className="h-4 w-4" />
         </Button>
       </div>
-      <Input
+      <Textarea
         value={displayValue}
         onChange={(e) => handleChange(e.target.value)}
-        className="font-mono text-sm bg-code-background text-code-foreground"
+        className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px]"
       />
     </div>
   );

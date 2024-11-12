@@ -1,12 +1,13 @@
 import { parseAnsiCode } from '@/lib/ansi-parser';
 import { indexToRGB } from '@/lib/ansi-colors';
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface PreviewProps {
   ansiCode: string;
+  onSelect?: (selection: { start: number, end: number }) => void;
 }
 
-export function Preview({ ansiCode }: PreviewProps) {
+export function Preview({ ansiCode, onSelect }: PreviewProps) {
   const getPreviewStyle = () => {
     const parsed = parseAnsiCode(ansiCode);
     const styles: Record<string, any> = {};
@@ -42,13 +43,24 @@ export function Preview({ ansiCode }: PreviewProps) {
     return styles;
   };
 
+  const handleSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const target = e.target as HTMLTextAreaElement;
+    if (onSelect) {
+      onSelect({
+        start: target.selectionStart,
+        end: target.selectionEnd
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Preview</h3>
-      <Input
+      <Textarea
         value="The quick brown fox jumps over the lazy dog"
         readOnly
-        className="font-mono text-sm bg-code-background text-code-foreground"
+        onSelect={handleSelect}
+        className="font-mono text-sm bg-code-background text-code-foreground min-h-[100px]"
         style={getPreviewStyle()}
       />
     </div>
