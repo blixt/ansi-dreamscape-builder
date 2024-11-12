@@ -98,11 +98,12 @@ const Index = () => {
         
         if (selectedText) {
           const newStyle = {
-            // Only update style if it was explicitly changed (not when changing colors)
-            style: style !== 0 ? style : segment.style.style,
+            // If style is explicitly 0 (Normal), reset formatting but keep colors
+            // If style is undefined (color change), keep existing style
+            style: style === 0 ? 0 : (style === undefined ? segment.style.style : style),
             // Only update colors if they were explicitly changed
-            fgColor: fgColor !== null ? fgColor : segment.style.fgColor,
-            bgColor: bgColor !== null ? bgColor : segment.style.bgColor
+            fgColor: fgColor !== undefined ? fgColor : segment.style.fgColor,
+            bgColor: bgColor !== undefined ? bgColor : segment.style.bgColor
           };
 
           newSegments.push({
