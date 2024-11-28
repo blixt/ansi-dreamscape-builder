@@ -24,10 +24,22 @@ export const basicColors = {
 export const indexToRGB = (index: number): string => {
   if (index < 16) {
     const basic = [
-      '#000000', '#ff3333', '#33ff33', '#ffff33',
-      '#3333ff', '#ff33ff', '#33ffff', '#c0c0c0',
-      '#808080', '#ff0000', '#00ff00', '#ffff00',
-      '#0000ff', '#ff00ff', '#00ffff', '#ffffff'
+      '#000000', // Black
+      '#cd0000', // Red
+      '#00cd00', // Green
+      '#cdcd00', // Yellow
+      '#0000ee', // Blue
+      '#cd00cd', // Magenta
+      '#00cdcd', // Cyan
+      '#e5e5e5', // White
+      '#7f7f7f', // Gray (Bright Black)
+      '#ff0000', // Bright Red
+      '#00ff00', // Bright Green
+      '#ffff00', // Bright Yellow
+      '#5c5cff', // Bright Blue
+      '#ff00ff', // Bright Magenta
+      '#00ffff', // Bright Cyan
+      '#ffffff'  // Bright White
     ];
     return basic[index];
   }

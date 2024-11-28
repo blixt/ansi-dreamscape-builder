@@ -1,66 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useReducer } from 'react';
 import { Card } from '@/components/ui/card';
 import { useTheme } from "next-themes";
-import { parseAnsiCode } from '@/lib/ansi-parser';
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
 import { ColorPicker } from '@/components/ansi/ColorPicker';
 import { Preview } from '@/components/ansi/Preview';
 import { AnsiInput } from '@/components/ansi/AnsiInput';
+import { textStateReducer, initialState } from '@/lib/text-state-machine';
+import { useToast } from '@/components/ui/use-toast';
+
+const initialSegments = [
+  { text: "Lorem ipsum dolor sit amet, ", style: { fgColor: 196, bgColor: null, style: 0 } },
+  { text: "consectetur adipiscing elit", style: { fgColor: null, bgColor: 34, style: 1 } },
+  { text: ". Sed do eiusmod ", style: { fgColor: null, bgColor: null, style: 3 } },
+  { text: "tempor incididunt", style: { fgColor: 51, bgColor: 235, style: 1 } },
+  { text: " ut labore et dolore magna aliqua.", style: { fgColor: null, bgColor: null, style: 0 } }
+];
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
-  const [style, setStyle] = useState(0);
-  const [fgColor, setFgColor] = useState<number | null>(null);
-  const [bgColor, setBgColor] = useState<number | null>(null);
-  const [fg256, setFg256] = useState(1);
-  const [bg256, setBg256] = useState(1);
-  const [use256Color, setUse256Color] = useState(false);
-  const [customCode, setCustomCode] = useState('');
+  const { toast } = useToast();
+  const [state, dispatch] = useReducer(textStateReducer, {
+    ...initialState,
+    segments: initialSegments
+  });
 
-  useEffect(() => {
-    const isDark = theme === 'dark' || 
-      (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.classList.toggle('dark', isDark);
-  }, [theme]);
-
-  const getAnsiCode = () => {
-    const parts = [];
-    
-    if (style !== 0) {
-      parts.push(style);
-    }
-    
-    if (use256Color) {
-      if (fgColor !== null) parts.push(`38;5;${fg256}`);
-      if (bgColor !== null) parts.push(`48;5;${bg256}`);
-    } else {
-      if (fgColor !== null) parts.push(fgColor);
-      if (bgColor !== null) parts.push(bgColor + 40); // Fix: Changed from +10 to +40 for background colors
-    }
-
-    if (customCode) {
-      parts.push(customCode);
-    }
-    
-    return parts.length ? `\x1b[${parts.join(';')}m` : '';
-  };
-
-  const handleAnsiInput = (value: string) => {
-    try {
-      // Remove escape sequence prefix and 'm' suffix before parsing
-      const cleanCode = value.replace(/^\x1b\[/, '').replace(/\\e\[/, '').replace(/m$/, '');
-      const parsed = parseAnsiCode(cleanCode);
-      setStyle(parsed.style);
-      setFgColor(parsed.fgColor);
-      setBgColor(parsed.bgColor);
-      setFg256(parsed.fg256 ?? 1);
-      setBg256(parsed.bg256 ?? 1);
-      setUse256Color(parsed.use256Color);
-      setCustomCode(parsed.customCode);
-    } catch (error) {
-      console.error('Failed to parse ANSI code:', error);
-    }
+  const handleSelection = (selection: { start: number, end: number, text: string } | null) => {
+    dispatch({ type: 'SET_SELECTION', payload: selection ? { start: selection.start, end: selection.end } : null });
   };
 
   return (
@@ -74,27 +40,37 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
-              <StyleSelector style={style} setStyle={setStyle} />
+              <StyleSelector 
+                style={state.activeStyle} 
+                setStyle={(style) => dispatch({ type: 'SET_STYLE', payload: style })} 
+              />
               <ColorPicker
-                use256Color={use256Color}
-                setUse256Color={setUse256Color}
-                fg256={fg256}
-                setFg256={setFg256}
-                bg256={bg256}
-                setBg256={setBg256}
-                fgColor={fgColor}
-                setFgColor={setFgColor}
-                bgColor={bgColor}
-                setBgColor={setBgColor}
+                fg={state.activeFgColor ?? 0}
+                setFg={(color) => dispatch({ type: 'SET_FG_COLOR', payload: color })}
+                bg={state.activeBgColor ?? 0}
+                setBg={(color) => dispatch({ type: 'SET_BG_COLOR', payload: color })}
+                fgColor={state.activeFgColor}
+                setFgColor={(color) => dispatch({ type: 'SET_FG_COLOR', payload: color })}
+                bgColor={state.activeBgColor}
+                setBgColor={(color) => dispatch({ type: 'SET_BG_COLOR', payload: color })}
               />
             </div>
 
             <div className="space-y-6">
               <AnsiInput 
-                value={getAnsiCode()} 
-                onChange={handleAnsiInput} 
+                segments={state.segments}
+                setSegments={(segments) => dispatch({ type: 'UPDATE_SEGMENTS', payload: segments })}
+                readOnly={true}
               />
-              <Preview ansiCode={getAnsiCode()} />
+              <div className="space-y-2">
+                <Preview 
+                  segments={state.segments}
+                  onSelect={handleSelection}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Select text in the preview above and use the style controls on the left to update its formatting.
+                </p>
+              </div>
             </div>
           </div>
         </div>

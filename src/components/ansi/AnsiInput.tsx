@@ -1,47 +1,106 @@
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import React from 'react';
+import { TextSegment } from '@/lib/types';
+import { parseAnsiCode } from '@/lib/ansi-parser';
+import { indexToRGB } from '@/lib/ansi-colors';
+
+const basicColorMap = {
+  0: '#000000', 1: '#ff0000', 2: '#00ff00',
+  3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
+  6: '#00ffff', 7: '#ffffff', 8: '#808080',
+  9: '#ff0000', 10: '#00ff00', 11: '#ffff00',
+  12: '#0000ff', 13: '#ff00ff', 14: '#00ffff',
+  15: '#ffffff'
+};
 
 interface AnsiInputProps {
-  value: string;
-  onChange: (value: string) => void;
+  segments: TextSegment[];
+  setSegments: (segments: TextSegment[]) => void;
+  readOnly?: boolean;
 }
 
-export function AnsiInput({ value, onChange }: AnsiInputProps) {
-  const { toast } = useToast();
+export function AnsiInput({ segments, setSegments, readOnly = false }: AnsiInputProps) {
+  const handleAnsiInput = (input: string) => {
+    input = input.replace(/\\e/g, '\x1b').replace(/\\\\/g, '\\');
+    
+    const newSegments: TextSegment[] = [];
+    const regex = /\x1b\[[0-9;]*m|[^\x1b]+/g;
+    let matches = input.match(regex);
+    
+    if (!matches) {
+      setSegments([{
+        text: input,
+        style: { fgColor: null, bgColor: null, style: 0 }
+      }]);
+      return;
+    }
 
-  const copyToClipboard = () => {
-    // Convert escape character to \e before copying
-    const displayValue = value.replace(/\x1b/g, '\\e');
-    navigator.clipboard.writeText(displayValue);
-    toast({
-      title: "Copied to clipboard",
-      description: "The ANSI code has been copied to your clipboard.",
-    });
+    let currentStyle = {
+      style: 0,
+      fgColor: null as number | null,
+      bgColor: null as number | null,
+      customCode: ''
+    };
+
+    let currentText = '';
+    
+    for (const match of matches) {
+      if (match.startsWith('\x1b[')) {
+        if (currentText) {
+          newSegments.push({
+            text: currentText,
+            style: { ...currentStyle }
+          });
+          currentText = '';
+        }
+        
+        const parseResult = parseAnsiCode(match, currentStyle);
+        
+        currentStyle = {
+          style: parseResult.style,
+          fgColor: parseResult.fgColor,
+          bgColor: parseResult.bgColor,
+          customCode: parseResult.customCode
+        };
+      } else {
+        currentText += match;
+      }
+    }
+    
+    if (currentText) {
+      newSegments.push({
+        text: currentText,
+        style: { ...currentStyle }
+      });
+    }
+    
+    setSegments(newSegments);
   };
 
-  // Display \e instead of actual escape character
-  const displayValue = value.replace(/\x1b/g, '\\e');
-
-  const handleChange = (newValue: string) => {
-    // Convert \e back to actual escape character when user types
-    const actualValue = newValue.replace(/\\e/g, '\x1b');
-    onChange(actualValue);
+  const getRawAnsi = () => {
+    return segments.map(segment => {
+      let prefix = '';
+      if (segment.style.style !== 0 || segment.style.fgColor !== null || segment.style.bgColor !== null) {
+        const codes = [];
+        if (segment.style.style !== 0) codes.push(segment.style.style);
+        if (segment.style.fgColor !== null) codes.push(`38;5;${segment.style.fgColor}`);
+        if (segment.style.bgColor !== null) codes.push(`48;5;${segment.style.bgColor}`);
+        prefix = `\x1b[${codes.join(';')}m`;
+      }
+      return prefix + segment.text;
+    }).join('')
+    .replace(/\\/g, '\\\\')
+    .replace(/\x1b/g, '\\e');
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">ANSI Code</h3>
-        <Button variant="ghost" size="icon" onClick={copyToClipboard}>
-          <Copy className="h-4 w-4" />
-        </Button>
-      </div>
-      <Input
-        value={displayValue}
-        onChange={(e) => handleChange(e.target.value)}
-        className="font-mono text-sm bg-code-background text-code-foreground"
+      <h3 className="text-lg font-semibold">Raw</h3>
+      <textarea
+        value={getRawAnsi()}
+        onChange={(e) => handleAnsiInput(e.target.value)}
+        className="w-full h-40 p-2 font-mono text-sm bg-code-background text-code-foreground border rounded"
+        placeholder="Enter ANSI codes here"
+        readOnly={readOnly}
       />
     </div>
   );

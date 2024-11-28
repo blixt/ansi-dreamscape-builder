@@ -8,9 +8,10 @@ interface ColorPreviewProps {
 export function ColorPreview({ value, onClick }: ColorPreviewProps) {
   return (
     <div 
-      className="h-6 w-2 cursor-pointer hover:scale-y-110 transition-transform" 
+      className="w-[calc((100%-62px)/32)] aspect-square cursor-pointer hover:scale-110 transition-transform rounded-sm" 
       style={{ backgroundColor: indexToRGB(value) }}
       onClick={() => onClick(value)}
+      title={`Color ${value}`}
     />
   );
 }
