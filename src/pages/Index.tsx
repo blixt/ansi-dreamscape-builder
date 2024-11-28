@@ -9,10 +9,21 @@ import { AnsiInput } from '@/components/ansi/AnsiInput';
 import { textStateReducer, initialState } from '@/lib/text-state-machine';
 import { useToast } from '@/components/ui/use-toast';
 
+const initialSegments = [
+  { text: "Lorem ipsum dolor sit amet, ", style: { fgColor: 196, bgColor: null, style: 0 } },
+  { text: "consectetur adipiscing elit", style: { fgColor: null, bgColor: 34, style: 1 } },
+  { text: ". Sed do eiusmod ", style: { fgColor: null, bgColor: null, style: 3 } },
+  { text: "tempor incididunt", style: { fgColor: 51, bgColor: 235, style: 1 } },
+  { text: " ut labore et dolore magna aliqua.", style: { fgColor: null, bgColor: null, style: 0 } }
+];
+
 const Index = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const [state, dispatch] = useReducer(textStateReducer, initialState);
+  const [state, dispatch] = useReducer(textStateReducer, {
+    ...initialState,
+    segments: initialSegments
+  });
 
   const handleSelection = (selection: { start: number, end: number, text: string } | null) => {
     dispatch({ type: 'SET_SELECTION', payload: selection ? { start: selection.start, end: selection.end } : null });
@@ -49,11 +60,17 @@ const Index = () => {
               <AnsiInput 
                 segments={state.segments}
                 setSegments={(segments) => dispatch({ type: 'UPDATE_SEGMENTS', payload: segments })}
+                readOnly={true}
               />
-              <Preview 
-                segments={state.segments}
-                onSelect={handleSelection}
-              />
+              <div className="space-y-2">
+                <Preview 
+                  segments={state.segments}
+                  onSelect={handleSelection}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Select text in the preview above and use the style controls on the left to update its formatting.
+                </p>
+              </div>
             </div>
           </div>
         </div>

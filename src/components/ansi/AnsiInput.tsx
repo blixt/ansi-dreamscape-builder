@@ -3,7 +3,6 @@ import { TextSegment } from '@/lib/types';
 import { parseAnsiCode } from '@/lib/ansi-parser';
 import { indexToRGB } from '@/lib/ansi-colors';
 
-// Define basicColorMap constant
 const basicColorMap = {
   0: '#000000', 1: '#ff0000', 2: '#00ff00',
   3: '#ffff00', 4: '#0000ff', 5: '#ff00ff',
@@ -16,11 +15,11 @@ const basicColorMap = {
 interface AnsiInputProps {
   segments: TextSegment[];
   setSegments: (segments: TextSegment[]) => void;
+  readOnly?: boolean;
 }
 
-export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
+export function AnsiInput({ segments, setSegments, readOnly = false }: AnsiInputProps) {
   const handleAnsiInput = (input: string) => {
-    // Convert literal escape sequences back to actual characters
     input = input.replace(/\\e/g, '\x1b').replace(/\\\\/g, '\\');
     
     const newSegments: TextSegment[] = [];
@@ -77,7 +76,6 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
     setSegments(newSegments);
   };
 
-  // Convert segments back to raw ANSI string
   const getRawAnsi = () => {
     return segments.map(segment => {
       let prefix = '';
@@ -90,8 +88,8 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
       }
       return prefix + segment.text;
     }).join('')
-    .replace(/\\/g, '\\\\')  // First escape backslashes
-    .replace(/\x1b/g, '\\e'); // Then escape ANSI escape sequences
+    .replace(/\\/g, '\\\\')
+    .replace(/\x1b/g, '\\e');
   };
 
   return (
@@ -102,6 +100,7 @@ export function AnsiInput({ segments, setSegments }: AnsiInputProps) {
         onChange={(e) => handleAnsiInput(e.target.value)}
         className="w-full h-40 p-2 font-mono text-sm bg-code-background text-code-foreground border rounded"
         placeholder="Enter ANSI codes here"
+        readOnly={readOnly}
       />
     </div>
   );
