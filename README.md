@@ -2,6 +2,25 @@
 
 A web-based tool for creating and visualizing ANSI escape sequences. This tool helps developers understand and experiment with terminal text formatting using a visual interface.
 
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) installed on your system
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+bun install
+```
+3. Start the development server:
+```bash
+bun run dev
+```
+4. Open your browser and navigate to `http://localhost:5173`
+
 <img width="1107" alt="image" src="https://github.com/user-attachments/assets/d66ffc22-8bca-47e2-b3bc-aeb12b73ce61">
 
 ## Features
