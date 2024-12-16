@@ -1,5 +1,4 @@
 import { useState, useReducer } from 'react';
-import { Card } from '@/components/ui/card';
 import { useTheme } from "next-themes";
 import { ThemeToggle } from '@/components/ansi/ThemeToggle';
 import { StyleSelector } from '@/components/ansi/StyleSelector';
@@ -30,14 +29,16 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <Card className="max-w-6xl mx-auto">
-        <div className="p-6 space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">ANSI Code Visualizer</h1>
-            <ThemeToggle />
-          </div>
+    <div className="min-h-screen">
+      <header className="border-b bg-background">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">ANSI Code Visualizer</h1>
+          <ThemeToggle />
+        </div>
+      </header>
 
+      <main className="max-w-6xl mx-auto p-4 md:p-8">
+        <div className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
               <StyleSelector 
@@ -74,7 +75,7 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </Card>
+      </main>
     </div>
   );
 };
